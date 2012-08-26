@@ -1,0 +1,7 @@
+CREATE DATABSE design_a_game;
+
+CREATE TABLE categories (id INT(32) NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(64) DEFAULT '???', icon VARCHAR(128) DEFAULT 'default_category.png', is_default TINYINT(1) DEFAULT 0);
+
+CREATE TABLE options (id INT(32) NOT NULL AUTO_INCREMENT PRIMARY KEY, category INT(32) NOT NULL, name VARCHAR(64) DEFAULT '???', icon VARCHAR(128) DEFAULT 'default_option.png', is_default TINYINT(1) DEFAULT 0);
+
+CREATE TABLE users (id INT(32) NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(64) DEFAULT '', pass VARCHAR(64) DEFAULT '', save VARCHAR(64) DEFAULT 'default_save.json');
