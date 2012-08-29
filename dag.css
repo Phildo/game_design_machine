@@ -1,3 +1,8 @@
+div
+{
+  border:1px solid black;
+}
+
 @font-face
 {
     font-family:vg_font;
@@ -9,7 +14,50 @@ body
   font-family:vg_font, Courrier;
 }
 
+.centered
+{
+  margin:0 auto;
+}
+
+#dag
+{
+  margin:0 auto;
+  width:960px;
+  position:relative;
+}
+
 #header
 {
   margin:0 auto;
+  width:600px;
+}
+
+#banner
+{
+  margin:0 auto;
+  width:600px;
+  height:100px;
+}
+
+#content
+{
+  margin:0 auto;
+  width:100%;
+  position:relative;
+  min-height:200px;
+}
+
+#machine
+{
+  display:none;
+  margin:0 auto;
+  min-width:600px;
+}
+
+#pass
+{
+  display:none;
+  margin:0 auto;
+  width:300px;
+  height:200px;
 }

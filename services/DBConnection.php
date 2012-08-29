@@ -11,12 +11,14 @@ Class DBConnection
 
   function queryObj($query, $debug = false)
   {
+    if($debug) echo $query;
     $result = $this->con->query($query);
     return $result->fetch_object();
   }
 
   function queryArray($query, $debug = false)
   {
+    if($debug) echo $query;
     $result = $this->con->query($query);
     $ret = array();
     while($o = $result->fetch_object())

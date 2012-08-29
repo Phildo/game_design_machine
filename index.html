@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>PhildoGames - Design A Game</title>
+<link rel='stylesheet' type='text/css' href='dag.css' />
 <script type='text/javascript' src='utils/jquery.js'></script>
 <script type='text/javascript' src='utils/json2.js'></script>
 <script type='text/javascript' src='dag.js'></script>
@@ -11,12 +12,17 @@ $(document).ready(init);
 </head>
 <body>
 
-<div id='header'>
-<img src='images/dag_header.gif' />
-</div><!-- header -->
-
-<div id='content'>
-</div><!-- content -->
+<div id='dag'>
+  <div id='header'>
+    <img id='banner' src='images/dag_header.gif' />
+  </div><!-- header -->
+  <div id='content'>
+    <div id='machine'>
+    </div><!-- machine -->
+    <div id='pass'>
+    </div><!-- pass -->
+  </div><!-- content -->
+</div><!-- dag -->
 
 </body>
 </html>

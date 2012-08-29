@@ -14,5 +14,5 @@ CREATE INDEX find_category ON machine_categories(m_id);
 CREATE TABLE machine_options (id INT(32) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, m_id INT(32) UNSIGNED, c_id INT(32) UNSIGNED, o_id INT(32) UNSIGNED);
 CREATE INDEX find_option ON machine_options(m_id, c_id);
 
-CREATE TABLE icons (id INT(32) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, link_type ENUM('CATEGORY','OPTION'), link_id INT(32) UNSIGNED, icon VARCHAR(64));
+CREATE TABLE icons (id INT(32) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, link_type ENUM('CATEGORY','OPTION'), link_id INT(32) UNSIGNED, icon VARCHAR(64), is_default TINYINT(1) UNSIGNED DEFAULT 0, use_count INT(32) UNSIGNED DEFAULT 0);
 CREATE INDEX find_icon ON icons(link_type, link_id);

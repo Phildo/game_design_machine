@@ -4,9 +4,7 @@ function callService(serviceName, callback)
   request.onreadystatechange = function()
   {
     if(request.readyState == 1) 
-    {
       request.send();
-    }
     else if(request.readyState == 4)
     {
       if(request.status == 200)
@@ -24,18 +22,19 @@ function requestDefaultCategories()
 }
 function populateDefaultCategories(data)
 {
-  if(!data)
+  if(!data) data = defaultOfflineCategories();
+  for(var i = 0; i < data.length; i++)
   {
-
-  }
-  else
-  {
-    for(var i = 0; i < data.length; i++)
-    {
-      addCategoryFromJSON(data[i], true);
-    }
+    addCategoryFromJSON(data[i], true);
   }
 }
+function useDefaultOfflineCategories()
+{
+  var d = "";
+  d += "{";
+  
+}
+
 function addCategoryFromJSON(catData, isDefault)
 {
   if(!catData) return;
@@ -45,6 +44,7 @@ function addCategoryFromJSON(catData, isDefault)
 function addCategory(category)
 {
   categories.push(category);
+  render();
 }
 function removeCategory(category)
 {
@@ -68,14 +68,8 @@ function Category(name, icon, options, is_default)
   this.locked = false;
   this.selectedIndex = 0;
 
-  this.addOption = function (option)
-  {
-    this.options.push(option);
-  }
-  this.removeOption = function (option)
-  {
-
-  }
+  this.addOption = function (option) { this.options.push(option); }
+  this.removeOption = function (option) { }
   this.roll = function ()
   {
     if(!this.locked)
@@ -83,10 +77,7 @@ function Category(name, icon, options, is_default)
 
     }
   }
-  this.toggleLock = function ()
-  {
-    this.locked = !this.locked;
-  }
+  this.toggleLock = function () { this.locked = !this.locked; }
 
   return this;
 }
@@ -99,9 +90,6 @@ function Option(name, icon, is_default)
   return this;
 }
 
-function init()
-{
-  requestDefaultCategories();
-}
+function init() { requestDefaultCategories(); }
 
 var categories = [];
