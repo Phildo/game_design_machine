@@ -1,0 +1,15 @@
+@font-face
+{
+    font-family:vg_font;
+    src:url('fonts/emulogic.ttf');
+}
+
+body
+{
+  font-family:vg_font, Courrier;
+}
+
+#header
+{
+  margin:0 auto;
+}

@@ -34,7 +34,6 @@ function populateDefaultCategories(data)
     {
       addCategoryFromJSON(data[i], true);
     }
-    alert(JSON.stringify(data));
   }
 }
 function addCategoryFromJSON(catData, isDefault)
@@ -45,7 +44,7 @@ function addCategoryFromJSON(catData, isDefault)
 }
 function addCategory(category)
 {
-
+  categories.push(category);
 }
 function removeCategory(category)
 {
@@ -60,27 +59,31 @@ function Category(name, icon, options, is_default)
   this.options = [];
   if(options)
   {
-    this.options = options;
+    for(var i = 0; i < options.length; i++)
+    {
+      var o = new Option(options[i].name, options[i].icon, options[i].is_default);
+      this.addOption(o);
+    }
   }
   this.locked = false;
   this.selectedIndex = 0;
 
-  this.addOption(option)
+  this.addOption = function (option)
+  {
+    this.options.push(option);
+  }
+  this.removeOption = function (option)
   {
 
   }
-  this.removeOption(option)
-  {
-
-  }
-  this.roll()
+  this.roll = function ()
   {
     if(!this.locked)
     {
 
     }
   }
-  this.toggleLock()
+  this.toggleLock = function ()
   {
     this.locked = !this.locked;
   }
@@ -100,3 +103,5 @@ function init()
 {
   requestDefaultCategories();
 }
+
+var categories = [];
