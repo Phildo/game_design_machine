@@ -5,11 +5,14 @@ require_once('DBConnection.php');
 $debug = false;
 
 $mSel = "id, url";
-$cSel = "categories.id, name, is_default, icon";
-$oSel = "options.id, name, is_default, icon";
+$cSel = "categories.id, name, icon";
+$oSel = "options.id, name, icon";
 
 $con = new DBConnection();
-$m = $con->queryObj("SELECT ".$mSel." FROM machines WHERE id = ".substr($_GET['m'],0,4)." AND url = '".substr($_GET['m'],4)."' AND pass = '".($_GET['p'])."';", $debug);
+if(isset($_GET['m']) && isset($_GET['p']))
+  $m = $con->queryObj("SELECT ".$mSel." FROM machines WHERE id = ".substr($_GET['m'],0,4)." AND url = '".substr($_GET['m'],4)."' AND pass = '".($_GET['p'])."';", $debug);
+else
+  $m = $con->queryObj("SELECT ".$mSel." FROM machines WHERE id = 1;", $debug);
 if(!$m) die(0);
 $m->categories = $con->queryArray("
 SELECT ".$cSel." FROM (SELECT * FROM machine_categories WHERE m_id = ".$m->id.") AS machine_categories
