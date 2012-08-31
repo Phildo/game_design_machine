@@ -1,6 +1,6 @@
 div
 {
-  border:1px solid black;
+  /*border:1px solid black;*/
 }
 
 @font-face
@@ -12,6 +12,7 @@ div
 body
 {
   font-family:vg_font, Courrier;
+  /*background-image:url('debugimgs/100.png');*/
 }
 
 .centered
@@ -21,43 +22,131 @@ body
 
 #dag
 {
-  margin:0 auto;
-  width:960px;
+  margin:20px auto;
+  padding:20px;
+  width:920px;
   position:relative;
+  background-color:#CCDDFF;
 }
 
 #header
 {
-  margin:0 auto;
+  margin:0px auto;
+  margin-bottom:20px;
   width:600px;
+  height:100px;
+  background-color:#FFFFFF;
 }
 
 #banner
 {
-  margin:0 auto;
+  margin:0px auto;
   width:600px;
   height:100px;
+  background-color:#000000;
 }
 
 #content
 {
-  margin:0 auto;
-  width:100%;
+  margin:0px auto;
+  padding:20px;
   position:relative;
-  min-height:200px;
+  min-height:360px;
+  background-color:#FFFFFF;
 }
 
 #machine
 {
-  display:none;
-  margin:0 auto;
-  min-width:600px;
+  margin:0px auto;
+  padding:20px;
+  min-height:320px;
+  background-color:#333333;
+}
+
+.category
+{
+  float:left;
+  margin-right:10px;
+  padding:10px;
+  width:180px;
+  height:300px;
+  background-color:#000000;
+}
+
+.ctitle
+{
+  margin:0px auto;
+  margin-bottom:10px;
+  padding:5px;
+  width:170px;
+  height:32px;
+  background-color:#FFFFFF;
+  position:relative;
+}
+
+.cicon
+{
+  float:left;
+  margin-right:5px;
+  width:32px;
+  height:32px;
+}
+
+.ctext
+{
+  float:left;
+  width:133px;
+  height:22px;
+  overflow:hide;
+  position:relative;
+  top:6px;
+}
+
+.ccontent
+{
+  margin:0px auto;
+  padding:5px;
+  width:170px;
+  height:238px;
+  background-color:#FFFFFF;
+  overflow:hide;
+}
+
+.option
+{
+  margin:0px auto 5px auto;
+  padding:4px;
+  width:162px;
+  height:20px;
+  background-color:#DDDDDD;
+  overflow:hide;
+  position:relative;
+}
+
+.oicon
+{
+  float:left;
+  margin-right:4px;
+  width:16px;
+  height:16px;
+  position:relative;
+  top:2px;
+}
+
+.otext
+{
+  float:left;
+  width:142px;
+  height:22px;
+  overflow:hide;
+  position:relative;
+  top:-1px;
 }
 
 #pass
 {
   display:none;
-  margin:0 auto;
+  margin:10px auto;
   width:300px;
-  height:200px;
+  /*height:200px;*/
 }

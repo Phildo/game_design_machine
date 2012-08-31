@@ -21,7 +21,8 @@ function populateMachineFromJSON(data)
   if(!data) data = defaultOfflineMachine();
   data = JSON.parse(data);
   machine = new Machine(data.url, data.categories);
-  alert(JSON.stringify(machine));
+  document.getElementById('content').innerHTML = machine.render();
+  //alert(JSON.stringify(machine));
 }
 function defaultOfflineMachine()
 {
@@ -33,6 +34,21 @@ function Machine(url, categories)
 {
   this.addCategory = function (category) { this.categories.push(category); };
   this.removeCategory = function (category) { };
+  this.dirty = function () { this.dirtyBit = true; };
+  this.render = function()
+  {
+    if(this.dirtyBit)
+    {
+      this.dirtyBit = false;
+      this.htmltxt = "<div id='machine'>";
+      for(var i = 0; i < this.categories.length; i++)
+        this.htmltxt += this.categories[i].render();
+      this.htmltxt += "</div>"; //machine
+    }
+    return this.htmltxt;
+  }
+  this.dirtyBit = true;
+  this.htmltxt = "";
 
   this.url = (url ? url : '');
   this.categories = [];
@@ -40,16 +56,39 @@ function Machine(url, categories)
   {
     for(var i = 0; i < categories.length; i++)
     {
-      var c = new Category(categories[i].name, categories[i].icon, categories[i].options);
+      var c = new Category(categories[i].name, categories[i].icon, categories[i].options, this);
       this.addCategory(c);
     }
   }
   return this;
 }
-function Category(name, icon, options)
+function Category(name, icon, options, owner)
 {
   this.addOption = function (option) { this.options.push(option); };
   this.removeOption = function (option) { };
+  this.dirty = function () { this.dirtyBit = true; this.owner.dirty(); };
+  this.render = function()
+  {
+    if(this.dirtyBit)
+    {
+      this.dirtyBit = false;
+      this.htmltxt = "<div class='category'>";
+      this.htmltxt += "<div class='ctitle'>";
+      this.htmltxt += "<img class='cicon' src='images/icons/"+this.icon+"' />";
+      this.htmltxt += "<div class='ctext'>";
+      this.htmltxt += this.name;
+      this.htmltxt += "</div>";//ctext
+      this.htmltxt += "</div>";//ctitle
+      this.htmltxt += "<div class='ccontent'>";
+      for(var i = 0; i < this.options.length; i++)
+        this.htmltxt += this.options[i].render();
+      this.htmltxt += "</div>";//ccontent
+      this.htmltxt += "</div>";//category
+    }
+    return this.htmltxt;
+  }
+  this.dirtyBit = true;
+  this.htmltxt = "";
 
   this.name = (name ? name : '???');
   this.icon = (icon ? icon : 'default_category.png');
@@ -58,17 +97,36 @@ function Category(name, icon, options)
   {
     for(var i = 0; i < options.length; i++)
     {
-      var o = new Option(options[i].name, options[i].icon);
+      var o = new Option(options[i].name, options[i].icon, this);
       this.addOption(o);
     }
   }
+  this.owner = owner;
   return this;
 }
-function Option(name, icon)
+function Option(name, icon, owner)
 {
+  this.dirty = function () { this.dirtyBit = true; this.owner.dirty(); };
+  this.render = function()
+  {
+    if(this.dirtyBit)
+    {
+      this.dirtyBit = false;
+      this.htmltxt = "<div class='option'>";
+      this.htmltxt += "<img class='oicon' src='images/icons/"+this.icon+"' />";
+      this.htmltxt += "<div class='otext'>";
+      this.htmltxt += this.name;
+      this.htmltxt += "</div>";//otext
+      this.htmltxt += "</div>";//option
+    }
+    return this.htmltxt;
+  }
+  this.dirtyBit = true;
+  this.htmltxt = "";
+
   this.name = (name ? name : '???');
   this.icon = (icon ? icon : 'default_option.png');
-
+  this.owner = owner;
   return this;
 }
 
