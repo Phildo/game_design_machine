@@ -32,16 +32,18 @@ function defaultOfflineMachine()
 
 function Machine(url, categories)
 {
-  this.addCategory = function (category) { this.categories.push(category); };
-  this.removeCategory = function (category) { };
+  this.addCategory = function (category) { this.categories.push(category); this.dirty(); };
+  this.removeCategory = function (category) { this.dirty(); };
   this.dirty = function () { this.dirtyBit = true; };
   this.render = function()
   {
     if(this.dirtyBit)
     {
+      this.htmltxt = "";
       this.dirtyBit = false;
       for(var i = 0; i < this.categories.length; i++)
         this.htmltxt += this.categories[i].render();
+      this.htmltxt += "<img id='addcatbtn' src='images/addcatbtn.png' onclick='javascript:addCat();' />";
     }
     return this.htmltxt;
   }
@@ -54,16 +56,31 @@ function Machine(url, categories)
   {
     for(var i = 0; i < categories.length; i++)
     {
-      var c = new Category(categories[i].name, categories[i].icon, categories[i].options, this);
+      var c = new Category(categories[i].name, categories[i].icon, i, categories[i].options, this);
       this.addCategory(c);
     }
   }
   return this;
 }
-function Category(name, icon, options, owner)
+function Category(name, icon, index, options, owner)
 {
-  this.addOption = function (option) { this.options.push(option); };
-  this.removeOption = function (option) { };
+  this.editName = function(name)
+  {
+    this.name = "<input id='edit' type='text' value='"+this.name+"'></input>";
+    this.editBit = true;
+    this.dirty();
+  }
+  this.endEdit = function()
+  {
+    if(this.editBit)
+    {
+      this.name = document.getElementById('edit').value;
+      this.dirty();
+      this.editBit = false;
+    }
+  }
+  this.addOption = function (option) { this.options.push(option); this.dirty(); };
+  this.removeOption = function (option) { this.dirty(); };
   this.dirty = function () { this.dirtyBit = true; this.owner.dirty(); };
   this.render = function()
   {
@@ -73,37 +90,55 @@ function Category(name, icon, options, owner)
       this.htmltxt = "<div class='category'>";
       this.htmltxt += "<div class='ctitle'>";
       this.htmltxt += "<img class='cicon' src='images/icons/"+this.icon+"' />";
-      this.htmltxt += "<div class='ctext'>";
+      this.htmltxt += "<div class='ctext' onclick='javascript:editCat("+this.index+");'>";
       this.htmltxt += this.name;
       this.htmltxt += "</div>";//ctext
       this.htmltxt += "</div>";//ctitle
       this.htmltxt += "<div class='ccontent'>";
       for(var i = 0; i < this.options.length; i++)
         this.htmltxt += this.options[i].render();
+      this.htmltxt += "<img class='addoptbtn' src='images/addoptbtn.png' onclick='javascript:addOpt("+this.index+");' />";
       this.htmltxt += "</div>";//ccontent
       this.htmltxt += "</div>";//category
     }
     return this.htmltxt;
   }
   this.dirtyBit = true;
+  this.editBit = false;
   this.htmltxt = "";
 
   this.name = (name ? name : '???');
   this.icon = (icon ? icon : 'default_category.png');
+  this.index = (index ? index : 0);
+  this.owner = owner;
   this.options = [];
   if(options)
   {
     for(var i = 0; i < options.length; i++)
     {
-      var o = new Option(options[i].name, options[i].icon, this);
+      var o = new Option(options[i].name, options[i].icon, i, this);
       this.addOption(o);
     }
   }
-  this.owner = owner;
   return this;
 }
-function Option(name, icon, owner)
+function Option(name, icon, index, owner)
 {
+  this.editName = function(name)
+  {
+    this.name = "<input id='edit' type='text' value='"+this.name+"'></input>";
+    this.editBit = true;
+    this.dirty();
+  }
+  this.endEdit = function()
+  {
+    if(this.editBit)
+    {
+      this.name = document.getElementById('edit').value;
+      this.dirty();
+      this.editBit = false;
+    }
+  }
   this.dirty = function () { this.dirtyBit = true; this.owner.dirty(); };
   this.render = function()
   {
@@ -112,7 +147,7 @@ function Option(name, icon, owner)
       this.dirtyBit = false;
       this.htmltxt = "<div class='option'>";
       this.htmltxt += "<img class='oicon' src='images/icons/"+this.icon+"' />";
-      this.htmltxt += "<div class='otext'>";
+      this.htmltxt += "<div class='otext' onclick='javascript:editOpt("+owner.index+","+this.index+");'>";
       this.htmltxt += this.name;
       this.htmltxt += "</div>";//otext
       this.htmltxt += "</div>";//option
@@ -120,12 +155,43 @@ function Option(name, icon, owner)
     return this.htmltxt;
   }
   this.dirtyBit = true;
+  this.editBit = false;
   this.htmltxt = "";
 
   this.name = (name ? name : '???');
   this.icon = (icon ? icon : 'default_option.png');
+  this.index = (index ? index : 0);
   this.owner = owner;
   return this;
+}
+
+function addCat()
+{
+  var c = new Category('category', 'default_category.png', machine.categories.length, [], machine);
+  machine.addCategory(c);
+  document.getElementById('machine').innerHTML = machine.render();
+}
+function addOpt(cat)
+{
+  var o = new Option('option', 'default_option.png', machine.categories[cat].options.length, machine.categories[cat]);
+  machine.categories[cat].addOption(o);
+  document.getElementById('machine').innerHTML = machine.render();
+}
+function editCat(cat)
+{
+  machine.categories[cat].editName();
+  document.getElementById('machine').innerHTML = machine.render();
+}
+function editOpt(cat, opt)
+{
+  machine.categories[cat].options[opt].editName();
+  document.getElementById('machine').innerHTML = machine.render();
+}
+
+function wipe()
+{
+  machine = new Machine(machine.url, []);
+  document.getElementById('machine').innerHTML = machine.render();
 }
 
 function init() { callService('machine',populateMachineFromJSON); }

@@ -14,6 +14,12 @@ $(document).ready(init);
 
 <div id='dag'>
   <div id='header'>
+    <div id='defbtn' class='button' onclick='javascript:wipe();'>
+      default
+    </div><!-- defbtn -->
+    <div id='wipebtn' class='button' onclick='javascript:wipe();'>
+      wipe
+    </div><!-- wipebtn -->
     <img id='banner' src='images/dag_header.png' />
     <div id='loadbtn' class='button'>
       load
@@ -25,24 +31,6 @@ $(document).ready(init);
   <div id='content'>
 
     <div id='machine'>
-      <div class='category'>
-        <div class='ctitle'>
-          <div class='cicon'>
-          </div><!-- cicon -->
-          <div class='ctext'>
-            category
-          </div><!-- ctext -->
-        </div><!-- ctitle -->
-        <div class='ccontent'>
-          <div class='option'>
-            <div class='oicon'>
-            </div><!-- oicon -->
-            <div class='otext'>
-              option
-            </div><!-- otext -->
-          </div><!-- option -->
-        </div><!-- ccontent -->
-      </div><!-- category -->
     </div><!-- machine -->
 
     <div id='roll'>
