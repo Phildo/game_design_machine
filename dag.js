@@ -21,7 +21,7 @@ function populateMachineFromJSON(data)
   if(!data) data = defaultOfflineMachine();
   data = JSON.parse(data);
   machine = new Machine(data.url, data.categories);
-  document.getElementById('content').innerHTML = machine.render();
+  document.getElementById('machine').innerHTML = machine.render();
   //alert(JSON.stringify(machine));
 }
 function defaultOfflineMachine()
@@ -40,10 +40,8 @@ function Machine(url, categories)
     if(this.dirtyBit)
     {
       this.dirtyBit = false;
-      this.htmltxt = "<div id='machine'>";
       for(var i = 0; i < this.categories.length; i++)
         this.htmltxt += this.categories[i].render();
-      this.htmltxt += "</div>"; //machine
     }
     return this.htmltxt;
   }

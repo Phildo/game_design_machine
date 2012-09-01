@@ -14,17 +14,23 @@ $(document).ready(init);
 
 <div id='dag'>
   <div id='header'>
-    <img id='banner' src='images/dag_header.gif' />
+    <img id='banner' src='images/dag_header.png' />
+    <div id='loadbtn' class='button'>
+      load
+    </div><!-- loadbtn -->
+    <div id='savebtn' class='button'>
+      save
+    </div><!-- savebtn -->
   </div><!-- header -->
   <div id='content'>
-    <div id='machine'>
 
+    <div id='machine'>
       <div class='category'>
         <div class='ctitle'>
           <div class='cicon'>
           </div><!-- cicon -->
           <div class='ctext'>
-            Category
+            category
           </div><!-- ctext -->
         </div><!-- ctitle -->
         <div class='ccontent'>
@@ -32,15 +38,24 @@ $(document).ready(init);
             <div class='oicon'>
             </div><!-- oicon -->
             <div class='otext'>
-              Option
+              option
             </div><!-- otext -->
           </div><!-- option -->
         </div><!-- ccontent -->
       </div><!-- category -->
-
     </div><!-- machine -->
-    <div id='pass'>
-    </div><!-- pass -->
+
+    <div id='roll'>
+      <div id='rollbtn' class='button'>
+        roll
+      </div><!-- rollbtn -->
+      <div id='rcontent'>
+      </div><!-- rcontent -->
+      <div id='copyrbtn' class='button'>
+        copy
+      </div><!-- copyrbtn -->
+    </div><!-- roll -->
+
   </div><!-- content -->
 </div><!-- dag -->
 </body>

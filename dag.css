@@ -15,9 +15,11 @@ body
   /*background-image:url('debugimgs/100.png');*/
 }
 
-.centered
+.button
 {
-  margin:0 auto;
+  padding:4px;
+  height:22px;
+  background-color:#777777;
 }
 
 #dag
@@ -33,17 +35,35 @@ body
 {
   margin:0px auto;
   margin-bottom:20px;
-  width:600px;
+  width:800px;
   height:100px;
   background-color:#FFFFFF;
+  position:relative;
 }
 
 #banner
 {
+  display:block;
   margin:0px auto;
   width:600px;
   height:100px;
   background-color:#000000;
+}
+
+#loadbtn
+{
+  width:68px;
+  position:absolute;
+  right:14px;
+  top:15px;
+}
+
+#savebtn
+{
+  width:68px;
+  position:absolute;
+  right:14px;
+  top:55px;
 }
 
 #content
@@ -51,15 +71,16 @@ body
   margin:0px auto;
   padding:20px;
   position:relative;
-  min-height:360px;
+  height:452px;
   background-color:#FFFFFF;
 }
 
 #machine
 {
   margin:0px auto;
+  margin-bottom:20px;
   padding:20px;
-  min-height:320px;
+  height:320px;
   background-color:#333333;
 }
 
@@ -86,6 +107,7 @@ body
 
 .cicon
 {
+  display:block;
   float:left;
   margin-right:5px;
   width:32px;
@@ -125,6 +147,7 @@ body
 
 .oicon
 {
+  display:block;
   float:left;
   margin-right:4px;
   width:16px;
@@ -143,10 +166,38 @@ body
   top:-1px;
 }
 
-#pass
+#roll
 {
-  display:none;
-  margin:10px auto;
-  width:300px;
-  /*height:200px;*/
+  margin:0px auto;
+  padding:15px;
+  height:42px;
+  background-color:#333333;
+  position:relative;
+}
+
+#rollbtn
+{
+  width:68px;
+  margin-right:15px;
+  position:absolute;
+  top:20px;
+  left:15px;
+}
+
+#rcontent
+{
+  margin:0px auto;
+  padding:5px;
+  width:650px;
+  height:32px;
+  background-color:#FFFFFF;
+}
+
+#copyrbtn
+{
+  width:68px;
+  margin-left:15px;
+  position:absolute;
+  top:20px;
+  right:15px;
 }
