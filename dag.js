@@ -74,7 +74,7 @@ function Category(name, icon, index, options, owner)
   this.editName = function(name)
   {
     this.owner.endEdit();
-    this.name = "<input id='edit' type='text' value='"+this.name+"'></input>";
+    this.name = "<input id='edit' type='text' value='"+this.name+"'></input><img id='ceditbtn' src='images/canceleditbtn.png' onclick='javascript:endEdits();' />";
     this.editBit = true;
     this.dirty();
   }
@@ -144,7 +144,7 @@ function Option(name, icon, index, owner)
   this.editName = function(name)
   {
     this.owner.owner.endEdit();
-    this.name = "<input id='edit' type='text' value='"+this.name+"'></input>";
+    this.name = "<input id='edit' type='text' value='"+this.name+"'></input><img id='ceditbtn' src='images/canceleditbtn.png' onclick='javascript:endEdits();' />";
     this.editBit = true;
     this.dirty();
   }

@@ -183,6 +183,18 @@ body
   top:-1px;
 }
 
+#edit
+{
+  float:left;
+}
+
+#ceditbtn
+{
+  float:left; 
+  width:10px;
+  height:10px;
+}
+
 .addoptbtn
 {
   display:block;
