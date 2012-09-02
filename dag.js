@@ -32,6 +32,13 @@ function defaultOfflineMachine()
 
 function Machine(url, categories)
 {
+  this.endEdit = function()
+  {
+    for(var i = 0; i < this.categories.length; i++)
+    {
+      if(this.categories[i].endEdit()) break;
+    }
+  }
   this.addCategory = function (category) { this.categories.push(category); this.dirty(); };
   this.removeCategory = function (category) { this.dirty(); };
   this.dirty = function () { this.dirtyBit = true; };
@@ -66,6 +73,7 @@ function Category(name, icon, index, options, owner)
 {
   this.editName = function(name)
   {
+    this.owner.endEdit();
     this.name = "<input id='edit' type='text' value='"+this.name+"'></input>";
     this.editBit = true;
     this.dirty();
@@ -77,6 +85,15 @@ function Category(name, icon, index, options, owner)
       this.name = document.getElementById('edit').value;
       this.dirty();
       this.editBit = false;
+      return true;
+    }
+    else
+    {
+      for(var i = 0; i < this.options.length; i++)
+      {
+        if(this.options[i].endEdit()) return true;
+      }
+      return false;
     }
   }
   this.addOption = function (option) { this.options.push(option); this.dirty(); };
@@ -126,6 +143,7 @@ function Option(name, icon, index, owner)
 {
   this.editName = function(name)
   {
+    this.owner.owner.endEdit();
     this.name = "<input id='edit' type='text' value='"+this.name+"'></input>";
     this.editBit = true;
     this.dirty();
@@ -137,7 +155,9 @@ function Option(name, icon, index, owner)
       this.name = document.getElementById('edit').value;
       this.dirty();
       this.editBit = false;
+      return true;
     }
+    return false;
   }
   this.dirty = function () { this.dirtyBit = true; this.owner.dirty(); };
   this.render = function()
@@ -187,13 +207,21 @@ function editOpt(cat, opt)
   machine.categories[cat].options[opt].editName();
   document.getElementById('machine').innerHTML = machine.render();
 }
-
+function endEdits()
+{
+  machine.endEdit();
+  document.getElementById('machine').innerHTML = machine.render();
+}
+function loadDefaults()
+{
+  callService('machine',populateMachineFromJSON);
+}
 function wipe()
 {
   machine = new Machine(machine.url, []);
   document.getElementById('machine').innerHTML = machine.render();
 }
 
-function init() { callService('machine',populateMachineFromJSON); }
+function init() { loadDefaults(); }
 
 var machine;
