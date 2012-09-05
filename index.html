@@ -3,24 +3,23 @@
 <head>
 <title>PhildoGames - Design A Game</title>
 <link rel='stylesheet' type='text/css' href='dag.css' />
-<script type='text/javascript' src='utils/jquery.js'></script>
 <script type='text/javascript' src='utils/json2.js'></script>
 <script type='text/javascript' src='dag.js'></script>
 <script type='text/javascript'>
-$(document).ready(init);
 </script>
 </head>
 <body>
 
 <div id='dag'>
+
   <div id='header'>
-    <div id='defbtn' class='button' onclick='javascript:loadDefaults();'>
-      default
+    <div id='redobtn' class='button'>
+      redo
     </div><!-- defbtn -->
-    <div id='wipebtn' class='button' onclick='javascript:wipe();'>
+    <div id='wipebtn' class='button'>
       wipe
     </div><!-- wipebtn -->
-    <img id='banner' src='images/dag_header.png' />
+    <img id='banner' src='images/dag_header.gif' />
     <div id='loadbtn' class='button'>
       load
     </div><!-- loadbtn -->
@@ -28,6 +27,7 @@ $(document).ready(init);
       save
     </div><!-- savebtn -->
   </div><!-- header -->
+
   <div id='content'>
 
     <div id='machine'>
@@ -45,6 +45,7 @@ $(document).ready(init);
     </div><!-- roll -->
 
   </div><!-- content -->
+
 </div><!-- dag -->
 
 </body>

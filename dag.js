@@ -207,21 +207,28 @@ function editOpt(cat, opt)
   machine.categories[cat].options[opt].editName();
   document.getElementById('machine').innerHTML = machine.render();
 }
-function endEdits()
+function endEdits(e)
 {
   machine.endEdit();
   document.getElementById('machine').innerHTML = machine.render();
 }
-function loadDefaults()
+function loadDefaults(e)
 {
   callService('machine',populateMachineFromJSON);
 }
-function wipe()
+function wipe(e)
 {
   machine = new Machine(machine.url, []);
   document.getElementById('machine').innerHTML = machine.render();
 }
 
-function init() { loadDefaults(); }
+function init() 
+{ 
+  loadDefaults(null); 
+  document.getElementById('redobtn').addEventListener('click', function(e) { loadDefaults(e); });
+  document.getElementById('wipebtn').addEventListener('click', function(e) { wipe(e); });
+}
 
 var machine;
+
+window.addEventListener('load', init, false);
