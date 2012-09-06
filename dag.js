@@ -46,11 +46,13 @@ function Machine(url, categories)
   {
     if(this.dirtyBit)
     {
-      this.htmltxt = "";
+      this.htmltxt = "<div id='machinescroll'>";
       this.dirtyBit = false;
       for(var i = 0; i < this.categories.length; i++)
         this.htmltxt += this.categories[i].render();
       this.htmltxt += "<img id='addcatbtn' src='images/addcatbtn.png' onclick='javascript:addCat();' />";
+      this.htmltxt += "</div>";
+      this.trueWidth = (this.categories.length * 230) + 30; //the width of the INVISBLE container with the categories in it
     }
     return this.htmltxt;
   }
@@ -67,6 +69,9 @@ function Machine(url, categories)
       this.addCategory(c);
     }
   }
+  this.vizWidth = 720;//the width of the VISIBLE container with the categories in it
+  this.trueWidth = (this.categories.length * 230) + 30; //the width of the INVISBLE container with the categories in it
+  this.trueZero = (window.innerWidth - this.vizWidth) / 2; //the x of the left edge of the container with the categories in it
   return this;
 }
 function Category(name, icon, index, options, owner)
@@ -222,9 +227,25 @@ function wipe(e)
   document.getElementById('machine').innerHTML = machine.render();
 }
 
+function mousemoved(e)
+{
+  var percentAcrossScreen = ((e.clientX-machine.trueZero)/(machine.vizWidth));
+
+  var offset = 0-(percentAcrossScreen * (machine.trueWidth-machine.vizWidth));
+  document.getElementById('machinescroll').style.width = (machine.trueWidth+500) + "px";
+  document.getElementById('machinescroll').style.left = offset + "px";
+
+  //document.getElementById('debug').innerHTML = "clientX:"+e.clientX+" trueZero:"+trueZero+" trueWidth:"+trueWidth+" offset:"+offset+" <br />";
+}
+function windowresized(e)
+{
+  machine.trueZero = (window.innerWidth - machine.vizWidth) / 2; //the x of the left edge of the container with the categories in it
+}
+
 function init() 
 { 
   loadDefaults(null); 
+  document.addEventListener('mousemove', function(e) { mousemoved(e); });
   document.getElementById('redobtn').addEventListener('click', function(e) { loadDefaults(e); });
   document.getElementById('wipebtn').addEventListener('click', function(e) { wipe(e); });
 }
