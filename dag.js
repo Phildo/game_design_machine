@@ -245,6 +245,7 @@ function windowresized(e)
 function init() 
 { 
   loadDefaults(null); 
+  window.onresize = function(e) { windowresized() };
   document.addEventListener('mousemove', function(e) { mousemoved(e); });
   document.getElementById('redobtn').addEventListener('click', function(e) { loadDefaults(e); });
   document.getElementById('wipebtn').addEventListener('click', function(e) { wipe(e); });
