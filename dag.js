@@ -21,7 +21,6 @@ function populateMachineFromJSON(data)
   if(!data) data = defaultOfflineMachine();
   data = JSON.parse(data);
   machine = new Machine(data.url, data.categories);
-  document.getElementById('machine').innerHTML = machine.render();
   //alert(JSON.stringify(machine));
 }
 function defaultOfflineMachine()
@@ -32,34 +31,35 @@ function defaultOfflineMachine()
 
 function Machine(url, categories)
 {
-  this.endEdit = function()
+  this.constructHTML = function()
   {
-    for(var i = 0; i < this.categories.length; i++)
-    {
-      if(this.categories[i].endEdit()) break;
-    }
+    this.html = document.createElement('div');
+    this.html.setAttribute('id', 'machine');
+    this.html.setAttribute('class', 'machine');
+
+    this.htmlscroll = document.createElement('div');
+    this.htmlscroll.setAttribute('id', 'machinescroll');
+    this.htmlscroll.setAttribute('class', 'machinescroll');
+    this.html.appendChild(this.htmlscroll);
+
+    this.htmladdbtn = document.createElement('img');
+    this.htmladdbtn.setAttribute('id','addcatbtn');
+    this.htmladdbtn.setAttribute('class','addcatbtn');
+    this.htmladdbtn.setAttribute('src','images/addcatbtn.png');
+    this.htmladdbtn.addEventListener('click', function(e) { addBlankCat(e); });
+    this.htmlscroll.appendChild(this.htmladdbtn);
   }
-  this.addCategory = function (category) { this.categories.push(category); this.dirty(); };
-  this.removeCategory = function (category) { this.dirty(); };
-  this.dirty = function () { this.dirtyBit = true; };
-  this.render = function()
-  {
-    if(this.dirtyBit)
-    {
-      this.htmltxt = "<div id='machinescroll'>";
-      this.dirtyBit = false;
-      for(var i = 0; i < this.categories.length; i++)
-        this.htmltxt += this.categories[i].render();
-      this.htmltxt += "<img id='addcatbtn' src='images/addcatbtn.png' onclick='javascript:addCat();' />";
-      this.htmltxt += "</div>";
-      this.trueWidth = (this.categories.length * 230) + 30; //the width of the INVISBLE container with the categories in it
-    }
-    return this.htmltxt;
-  }
-  this.dirtyBit = true;
-  this.htmltxt = "";
+
+  this.addCategory = function(category) 
+  { 
+    this.categories.push(category); 
+    this.htmlscroll.insertBefore(category.html, this.htmladdbtn); 
+    this.trueWidth = (this.categories.length * 230) + 30; 
+  };
+  this.removeCategory = function (category) { };
 
   this.url = (url ? url : '');
+  this.constructHTML();
   this.categories = [];
   if(categories)
   {
@@ -72,67 +72,71 @@ function Machine(url, categories)
   this.vizWidth = 720;//the width of the VISIBLE container with the categories in it
   this.trueWidth = (this.categories.length * 230) + 30; //the width of the INVISBLE container with the categories in it
   this.trueZero = (window.innerWidth - this.vizWidth) / 2; //the x of the left edge of the container with the categories in it
+  document.getElementById('content').insertBefore(this.html, document.getElementById('roll'));
+
   return this;
 }
 function Category(name, icon, index, options, owner)
 {
+  this.constructHTML = function()
+  {
+    var listenObj = this; //used to pass 'self' (as the category object, not this function, or any particular DOM object) to listeners
+
+    this.html = document.createElement('div');
+    this.html.setAttribute('id','category_'+this.index);
+    this.html.setAttribute('class','category');
+  
+    this.htmltitle = document.createElement('div');
+    this.htmltitle.setAttribute('id','ctitle_'+this.index);
+    this.htmltitle.setAttribute('class','ctitle');
+    this.html.appendChild(this.htmltitle);
+  
+    this.htmlicon = document.createElement('img');
+    this.htmlicon.setAttribute('id','cicon_'+this.index);
+    this.htmlicon.setAttribute('class','cicon');
+    this.htmlicon.setAttribute('src','images/icons/'+this.icon);
+    this.htmltitle.appendChild(this.htmlicon);
+
+    this.htmltext = document.createElement('div');
+    this.htmltext.setAttribute('id','ctext_'+this.index);
+    this.htmltext.setAttribute('class','ctext');
+    this.htmltext.addEventListener('click', function(e) { listenObj.editName(); });
+    this.htmltext.innerHTML = this.name;
+    this.htmltitle.appendChild(this.htmltext);
+  
+    this.htmlcontent = document.createElement('div');
+    this.htmlcontent.setAttribute('id','ccontent_'+this.index);
+    this.htmlcontent.setAttribute('class','ccontent');
+    this.html.appendChild(this.htmlcontent);
+  
+    this.htmladdbtn = document.createElement('img');
+    this.htmladdbtn.setAttribute('id','addoptbtn_'+this.index);
+    this.htmladdbtn.setAttribute('class','addoptbtn');
+    this.htmladdbtn.setAttribute('src','images/addoptbtn.png');
+    this.htmladdbtn.addEventListener('click', function(e) { addBlankOpt(listenObj, e); });
+    this.htmlcontent.appendChild(this.htmladdbtn);
+  }
+
   this.editName = function(name)
   {
-    this.owner.endEdit();
     this.name = "<input id='edit' type='text' value='"+this.name+"'></input><img id='ceditbtn' src='images/canceleditbtn.png' onclick='javascript:endEdits();' />";
-    this.editBit = true;
-    this.dirty();
   }
   this.endEdit = function()
   {
-    if(this.editBit)
-    {
-      this.name = document.getElementById('edit').value;
-      this.dirty();
-      this.editBit = false;
-      return true;
-    }
-    else
-    {
-      for(var i = 0; i < this.options.length; i++)
-      {
-        if(this.options[i].endEdit()) return true;
-      }
-      return false;
-    }
+    this.name = document.getElementById('edit').value;
   }
-  this.addOption = function (option) { this.options.push(option); this.dirty(); };
-  this.removeOption = function (option) { this.dirty(); };
-  this.dirty = function () { this.dirtyBit = true; this.owner.dirty(); };
-  this.render = function()
-  {
-    if(this.dirtyBit)
-    {
-      this.dirtyBit = false;
-      this.htmltxt = "<div class='category'>";
-      this.htmltxt += "<div class='ctitle'>";
-      this.htmltxt += "<img class='cicon' src='images/icons/"+this.icon+"' />";
-      this.htmltxt += "<div class='ctext' onclick='javascript:editCat("+this.index+");'>";
-      this.htmltxt += this.name;
-      this.htmltxt += "</div>";//ctext
-      this.htmltxt += "</div>";//ctitle
-      this.htmltxt += "<div class='ccontent'>";
-      for(var i = 0; i < this.options.length; i++)
-        this.htmltxt += this.options[i].render();
-      this.htmltxt += "<img class='addoptbtn' src='images/addoptbtn.png' onclick='javascript:addOpt("+this.index+");' />";
-      this.htmltxt += "</div>";//ccontent
-      this.htmltxt += "</div>";//category
-    }
-    return this.htmltxt;
-  }
-  this.dirtyBit = true;
-  this.editBit = false;
-  this.htmltxt = "";
+  this.addOption = function(option) 
+  { 
+    this.options.push(option); 
+    this.htmlcontent.insertBefore(option.html, this.htmladdbtn);
+  };
+  this.removeOption = function (option) { };
 
   this.name = (name ? name : '???');
   this.icon = (icon ? icon : 'default_category.png');
   this.index = (index ? index : 0);
   this.owner = owner;
+  this.constructHTML();
   this.options = [];
   if(options)
   {
@@ -142,80 +146,66 @@ function Category(name, icon, index, options, owner)
       this.addOption(o);
     }
   }
+
   return this;
 }
 function Option(name, icon, index, owner)
 {
+  this.constructHTML = function()
+  {
+    var listenObj = this; //used to pass 'self' (as the category object, not this function, or any particular DOM object) to listeners
+
+    this.html = document.createElement('div');
+    this.html.setAttribute('id','option_'+this.owner.index+'_'+this.index);
+    this.html.setAttribute('class','option');
+
+    this.htmlicon = document.createElement('img');
+    this.htmlicon.setAttribute('id','oicon_'+this.owner.index+'_'+this.index);
+    this.htmlicon.setAttribute('class','oicon');
+    this.htmlicon.setAttribute('src','images/icons/'+this.icon);
+    this.html.appendChild(this.htmlicon);
+
+    this.htmltext = document.createElement('div');
+    this.htmltext.setAttribute('id','otext_'+this.owner.index+'_'+this.index);
+    this.htmltext.setAttribute('class','otext');
+    this.htmltext.addEventListener('click', function(e) { listenObj.editName(); });
+    this.htmltext.innerHTML = this.name;
+    this.html.appendChild(this.htmltext);
+  }
+
   this.editName = function(name)
   {
     this.owner.owner.endEdit();
     this.name = "<input id='edit' type='text' value='"+this.name+"'></input><img id='ceditbtn' src='images/canceleditbtn.png' onclick='javascript:endEdits();' />";
-    this.editBit = true;
-    this.dirty();
   }
   this.endEdit = function()
   {
-    if(this.editBit)
-    {
-      this.name = document.getElementById('edit').value;
-      this.dirty();
-      this.editBit = false;
-      return true;
-    }
-    return false;
+    this.name = document.getElementById('edit').value;
   }
-  this.dirty = function () { this.dirtyBit = true; this.owner.dirty(); };
-  this.render = function()
-  {
-    if(this.dirtyBit)
-    {
-      this.dirtyBit = false;
-      this.htmltxt = "<div class='option'>";
-      this.htmltxt += "<img class='oicon' src='images/icons/"+this.icon+"' />";
-      this.htmltxt += "<div class='otext' onclick='javascript:editOpt("+owner.index+","+this.index+");'>";
-      this.htmltxt += this.name;
-      this.htmltxt += "</div>";//otext
-      this.htmltxt += "</div>";//option
-    }
-    return this.htmltxt;
-  }
-  this.dirtyBit = true;
-  this.editBit = false;
-  this.htmltxt = "";
 
   this.name = (name ? name : '???');
   this.icon = (icon ? icon : 'default_option.png');
   this.index = (index ? index : 0);
   this.owner = owner;
+  this.constructHTML();
+
   return this;
 }
 
-function addCat()
+function addBlankCat(e)
 {
   var c = new Category('category', 'default_category.png', machine.categories.length, [], machine);
   machine.addCategory(c);
-  document.getElementById('machine').innerHTML = machine.render();
+  mousemoved(e);
 }
-function addOpt(cat)
+function addBlankOpt(cat, e)
 {
-  var o = new Option('option', 'default_option.png', machine.categories[cat].options.length, machine.categories[cat]);
-  machine.categories[cat].addOption(o);
-  document.getElementById('machine').innerHTML = machine.render();
-}
-function editCat(cat)
-{
-  machine.categories[cat].editName();
-  document.getElementById('machine').innerHTML = machine.render();
-}
-function editOpt(cat, opt)
-{
-  machine.categories[cat].options[opt].editName();
-  document.getElementById('machine').innerHTML = machine.render();
+  var o = new Option('option', 'default_option.png', cat.options.length, cat);
+  cat.addOption(o);
 }
 function endEdits(e)
 {
   machine.endEdit();
-  document.getElementById('machine').innerHTML = machine.render();
 }
 function loadDefaults(e)
 {
@@ -224,7 +214,6 @@ function loadDefaults(e)
 function wipe(e)
 {
   machine = new Machine(machine.url, []);
-  document.getElementById('machine').innerHTML = machine.render();
 }
 
 function mousemoved(e)
