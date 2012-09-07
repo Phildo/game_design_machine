@@ -22,6 +22,14 @@ body
   background-color:#777777;
 }
 
+#messagebox
+{
+  display:none;
+  width:300px;
+  height:200px;
+  position:absolute;
+}
+
 #dag
 {
   margin:20px auto;
@@ -129,7 +137,14 @@ body
   width:190px;
   height:32px;
   background-color:#FFFFFF;
+  overflow:hidden;
   position:relative;
+}
+
+.cname
+{
+  width:600px;
+  overflow:hidden;
 }
 
 .cicon
@@ -172,6 +187,12 @@ body
   position:relative;
 }
 
+.oname
+{
+  width:600px;
+  overflow:hidden;
+}
+
 .oicon
 {
   display:block;
@@ -193,7 +214,7 @@ body
   top:-1px;
 }
 
-#edit
+#editbox
 {
   float:left;
 }
