@@ -69,13 +69,22 @@ function Machine(url, categories)
     this.htmledit.appendChild(this.htmlcancelbtn);
   }
 
-  this.addCategory = function(category) 
+  this.addCategory = function(category,e) 
   { 
     this.categories.push(category); 
     this.htmlscroll.insertBefore(category.html, this.htmladdbtn); 
     this.trueWidth = (this.categories.length * 230) + 30; 
+    if(e!=null) mousemoved(e);
   };
-  this.deleteCategory = function (category,e) { };
+  this.deleteCategory = function (category,e) 
+  { 
+    this.categories.splice(category.index,1);
+    this.htmlscroll.removeChild(category.html);
+    for(var i = category.index; i < this.categories.length; i++)
+      this.categories[i].index = i;
+    this.trueWidth = (this.categories.length * 230) + 30; 
+    if(e!=null) mousemoved(e);
+  };
 
   this.endEdit = function(e)
   {
@@ -84,11 +93,13 @@ function Machine(url, categories)
 
   this.shift = function(e)
   {
+    this.htmladdbtn.style.display='none';
     for(var i = 0; i < this.categories.length; i++)
       this.categories[i].shift(e);
   }
   this.unshift = function(e)
   {
+    this.htmladdbtn.style.display='block';
     for(var i = 0; i < this.categories.length; i++)
       this.categories[i].unshift(e);
   }
@@ -101,12 +112,14 @@ function Machine(url, categories)
     for(var i = 0; i < categories.length; i++)
     {
       var c = new Category(categories[i].name, categories[i].icon, i, categories[i].options, this);
-      this.addCategory(c);
+      this.addCategory(c,null);
     }
   }
   this.vizWidth = 720;//the width of the VISIBLE container with the categories in it
+  this.vizHeight = 196;//the width of the VISIBLE container with the options in it
   this.trueWidth = (this.categories.length * 230) + 30; //the width of the INVISBLE container with the categories in it
-  this.trueZero = (window.innerWidth - this.vizWidth) / 2; //the x of the left edge of the container with the categories in it
+  this.trueZeroX = (window.innerWidth - this.vizWidth) / 2; //the x of the left edge of the container with the categories in it
+  this.trueZeroY = 268;
   if(document.getElementById('machine') != null) document.getElementById('content').removeChild(document.getElementById('machine'));
   document.getElementById('content').insertBefore(this.html, document.getElementById('roll'));
 
@@ -150,21 +163,36 @@ function Category(name, icon, index, options, owner)
     this.htmlcontent.setAttribute('id','ccontent_'+this.index);
     this.htmlcontent.setAttribute('class','ccontent');
     this.html.appendChild(this.htmlcontent);
+
+    this.htmlscroll = document.createElement('div');
+    this.htmlscroll.setAttribute('id', 'categoryscroll');
+    this.htmlscroll.setAttribute('class', 'categoryscroll');
+    this.htmlcontent.appendChild(this.htmlscroll);
   
     this.htmladdbtn = document.createElement('img');
     this.htmladdbtn.setAttribute('id','addoptbtn_'+this.index);
     this.htmladdbtn.setAttribute('class','addoptbtn');
     this.htmladdbtn.setAttribute('src','images/addoptbtn.png');
     this.htmladdbtn.addEventListener('click', function(e) { addBlankOpt(listenObj, e); });
-    this.htmlcontent.appendChild(this.htmladdbtn);
+    this.htmlscroll.appendChild(this.htmladdbtn);
   }
 
-  this.addOption = function(option) 
+  this.addOption = function(option,e) 
   { 
     this.options.push(option); 
-    this.htmlcontent.insertBefore(option.html, this.htmladdbtn);
+    this.htmlscroll.insertBefore(option.html, this.htmladdbtn);
+    this.trueHeight = (this.options.length * 33) + 30; 
+    if(e!=null) mousemoved(e);
   };
-  this.deleteOption = function (option,e) { };
+  this.deleteOption = function (option,e) 
+  {
+    this.options.splice(option.index,1);
+    this.htmlscroll.removeChild(option.html);
+    for(var i = option.index; i < this.options.length; i++)
+      this.options[i].index = i;
+    this.trueHeight = (this.options.length * 33) + 33; 
+    if(e!=null) mousemoved(e);
+  };
 
   this.editName = function(e)
   {
@@ -195,12 +223,14 @@ function Category(name, icon, index, options, owner)
 
   this.shift = function(e)
   {
+    this.htmladdbtn.style.display='none';
     this.htmlicon.src = 'images/delete_category.png';
     for(var i = 0; i < this.options.length; i++)
       this.options[i].shift(e);
   }
   this.unshift = function(e)
   {
+    this.htmladdbtn.style.display='block';
     this.htmlicon.src = 'images/icons/'+this.icon;
     for(var i = 0; i < this.options.length; i++)
       this.options[i].unshift(e);
@@ -217,9 +247,10 @@ function Category(name, icon, index, options, owner)
     for(var i = 0; i < options.length; i++)
     {
       var o = new Option(options[i].name, options[i].icon, i, this);
-      this.addOption(o);
+      this.addOption(o,null);
     }
   }
+  this.trueHeight = (this.options.length * 33) + 33; 
 
   return this;
 }
@@ -302,14 +333,13 @@ function Option(name, icon, index, owner)
 function addBlankCat(e)
 {
   var c = new Category('category', 'default_category.png', machine.categories.length, [], machine);
-  machine.addCategory(c);
+  machine.addCategory(c,e);
   c.editName(null);
-  mousemoved(e);
 }
 function addBlankOpt(cat, e)
 {
   var o = new Option('option', 'default_option.png', cat.options.length, cat);
-  cat.addOption(o);
+  cat.addOption(o,e);
   o.editName(null);
 }
 function endEdits(e)
@@ -328,19 +358,29 @@ function wipe(e)
 function mousemoved(e)
 {
   if(machine == null) return;
-  var percentAcrossScreen = ((e.clientX-machine.trueZero)/(machine.vizWidth));
+  var percentAcrossScreen = ((e.clientX-machine.trueZeroX)/(machine.vizWidth));
 
   var offset = 0-(percentAcrossScreen * (machine.trueWidth-machine.vizWidth));
   offset = offset < ((machine.trueWidth-machine.vizWidth)*-1) ? ((machine.trueWidth-machine.vizWidth)*-1) : offset;
   offset = offset > 0 ? 0 : offset;
-  document.getElementById('machinescroll').style.width = (machine.trueWidth+500) + "px";
+  //document.getElementById('machinescroll').style.width = (machine.trueWidth+500) + "px";
   document.getElementById('machinescroll').style.left = offset + "px";
+  
+  //268->462
+  var percentDownScreen = ((e.clientY-machine.trueZeroY)/(machine.vizHeight));
+  for(var i = 0; i < machine.categories.length; i++)
+  {
+    var offset = 0-(percentDownScreen * (machine.categories[i].trueHeight-machine.vizHeight));
+    offset = offset < ((machine.categories[i].trueHeight-machine.vizHeight)*-1) ? ((machine.categories[i].trueHeight-machine.vizHeight)*-1) : offset;
+    offset = offset > 0 ? 0 : offset;
+    machine.categories[i].htmlscroll.style.top = offset + "px";
+  }
 
-  //document.getElementById('debug').innerHTML = "clientX:"+e.clientX+" trueZero:"+machine.trueZero+" trueWidth:"+machine.trueWidth+" offset:"+offset+" <br />";
+  //document.getElementById('debug').innerHTML = "clientX:"+e.clientX+" clientY:"+e.clientY+" trueZeroX:"+machine.trueZeroX+" trueWidth:"+machine.trueWidth+" offset:"+offset+" <br />";
 }
 function windowresized(e)
 {
-  machine.trueZero = (window.innerWidth - machine.vizWidth) / 2; //the x of the left edge of the container with the categories in it
+  machine.trueZeroX = (window.innerWidth - machine.vizWidth) / 2; //the x of the left edge of the container with the categories in it
 }
 
 function init() 
