@@ -282,9 +282,25 @@ body
   width:535px;
   height:32px;
   background-color:#FFFFFF;
+  overflow:scroll;
 }
 
-#copyrbtn
+.rollchoice
+{
+  float:left;
+}
+
+.rollcat
+{
+  float:left;
+}
+
+.rollopt
+{
+  float:left;
+}
+
+#copybtn
 {
   width:68px;
   margin-left:15px;

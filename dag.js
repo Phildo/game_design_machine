@@ -354,6 +354,55 @@ function wipe(e)
 {
   machine = new Machine(machine.url, []);
 }
+function load(e)
+{
+
+}
+function save(e)
+{
+
+}
+function roll(e)
+{
+  var to;
+  var rcat;
+  var ropt;
+  rollo.text='';
+  for(var i = 0; i < machine.categories.length; i++)
+  {
+    rollo.text += machine.categories[i].name+':';
+    if(machine.categories[i].options.length > 0) 
+    {
+      to = machine.categories[i].options[Math.floor(Math.random()*machine.categories[i].options.length)];
+      rollo.text += to.name;
+
+    /*
+      var rc = document.createElement('div');
+      rc.setAttribute('class','rollchoice');
+      rc.innerHTML = "<div class='rollcat'><img src='images/icons/"+machine.categories[i].icon+"' />"+machine.categories[i].name+":</div><div class='rollopt'><img src='images/icons/"+to.icon+"' />"+to.name+"</div>";
+
+      document.getElementById('rcontent').appendChild(rc);
+    */
+      rcat = machine.categories[i].htmltitle.cloneNode(true);
+      ropt = to.html.cloneNode(true);
+      rcat.style.width = '';
+      ropt.style.width = '';
+      rcat.style.float = 'left';
+      ropt.style.float = 'left';
+      document.getElementById('rcontent').appendChild(rcat);
+      document.getElementById('rcontent').appendChild(ropt);
+    }
+    else
+    {
+      rollo.text += '(no option available)';
+    }
+    rollo.text += ' ';
+  }
+}
+function copy(e)
+{
+  alert(rollo.text);
+}
 
 function mousemoved(e)
 {
@@ -386,14 +435,23 @@ function windowresized(e)
 function init() 
 { 
   loadDefaults(null); 
+  rollo = {};
+  rollo.html = document.createElement('div');
+  rollo.html.innerHTML = "<- Roll To Design A Game!";
+  rollo.text = "You haven't rolled yet!";
   window.onresize = function(e) { windowresized() };
   document.addEventListener('mousemove', function(e) { mousemoved(e); });
   document.getElementById('redobtn').addEventListener('click', function(e) { loadDefaults(e); });
   document.getElementById('wipebtn').addEventListener('click', function(e) { wipe(e); });
+  document.getElementById('loadbtn').addEventListener('click', function(e) { load(e); });
+  document.getElementById('savebtn').addEventListener('click', function(e) { save(e); });
+  document.getElementById('rollbtn').addEventListener('click', function(e) { roll(e); });
+  document.getElementById('copybtn').addEventListener('click', function(e) { copy(e); });
   document.addEventListener('keydown', function(e) { if(e.keyIdentifier == 'Shift' && machine != null) machine.shift(e); });
   document.addEventListener('keyup', function(e) { if(e.keyIdentifier == 'Shift' && machine != null) machine.unshift(e); });
 }
 
 var machine;
+var roll;
 
 window.addEventListener('load', init, false);
