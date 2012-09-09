@@ -74,6 +74,7 @@ function Machine(url, categories)
     this.categories.push(category); 
     this.htmlscroll.insertBefore(category.html, this.htmladdbtn); 
     this.trueWidth = (this.categories.length * 230) + 30; 
+    this.htmlscroll.style.width = (this.trueWidth+500) + "px";
     if(e!=null) mousemoved(e);
   };
   this.deleteCategory = function (category,e) 
@@ -83,6 +84,7 @@ function Machine(url, categories)
     for(var i = category.index; i < this.categories.length; i++)
       this.categories[i].index = i;
     this.trueWidth = (this.categories.length * 230) + 30; 
+    this.htmlscroll.style.width = (this.trueWidth+500) + "px";
     if(e!=null) mousemoved(e);
   };
 
@@ -190,7 +192,7 @@ function Category(name, icon, index, options, owner)
     this.htmlscroll.removeChild(option.html);
     for(var i = option.index; i < this.options.length; i++)
       this.options[i].index = i;
-    this.trueHeight = (this.options.length * 33) + 33; 
+    this.trueHeight = (this.options.length * 33) + 30; 
     if(e!=null) mousemoved(e);
   };
 
@@ -250,7 +252,7 @@ function Category(name, icon, index, options, owner)
       this.addOption(o,null);
     }
   }
-  this.trueHeight = (this.options.length * 33) + 33; 
+  this.trueHeight = (this.options.length * 33) + 30; 
 
   return this;
 }
@@ -367,7 +369,9 @@ function roll(e)
   var to;
   var rcat;
   var ropt;
-  rollo.text='';
+  rollo.text = '';
+  rollo.html.innerHTML = '';
+  rollo.html.style.width = machine.categories.length*460+'px';
   for(var i = 0; i < machine.categories.length; i++)
   {
     rollo.text += machine.categories[i].name+':';
@@ -376,21 +380,9 @@ function roll(e)
       to = machine.categories[i].options[Math.floor(Math.random()*machine.categories[i].options.length)];
       rollo.text += to.name;
 
-    /*
-      var rc = document.createElement('div');
-      rc.setAttribute('class','rollchoice');
-      rc.innerHTML = "<div class='rollcat'><img src='images/icons/"+machine.categories[i].icon+"' />"+machine.categories[i].name+":</div><div class='rollopt'><img src='images/icons/"+to.icon+"' />"+to.name+"</div>";
-
-      document.getElementById('rcontent').appendChild(rc);
-    */
-      rcat = machine.categories[i].htmltitle.cloneNode(true);
-      ropt = to.html.cloneNode(true);
-      rcat.style.width = '';
-      ropt.style.width = '';
-      rcat.style.float = 'left';
-      ropt.style.float = 'left';
-      document.getElementById('rcontent').appendChild(rcat);
-      document.getElementById('rcontent').appendChild(ropt);
+      rcat = "<div class='ctitle' style='float:left; position:relative; bottom:11px;'><img class='cicon' src='images/icons/"+machine.categories[i].icon+"' /><div class='ctext'><div class='cname'>"+machine.categories[i].name+":</div></div></div>";
+      ropt = "<div class='option' style='float:left; position:relative; bottom:2px;'><img class='oicon' src='images/icons/"+to.icon+"' /><div class='otext'><div class='oname'>"+to.name+"</div></div></div>";
+      rollo.html.innerHTML += rcat+ropt;
     }
     else
     {
@@ -409,27 +401,34 @@ function mousemoved(e)
   if(machine == null) return;
   var percentAcrossScreen = ((e.clientX-machine.trueZeroX)/(machine.vizWidth));
 
+  //machine
   var offset = 0-(percentAcrossScreen * (machine.trueWidth-machine.vizWidth));
   offset = offset < ((machine.trueWidth-machine.vizWidth)*-1) ? ((machine.trueWidth-machine.vizWidth)*-1) : offset;
   offset = offset > 0 ? 0 : offset;
-  //document.getElementById('machinescroll').style.width = (machine.trueWidth+500) + "px";
   document.getElementById('machinescroll').style.left = offset + "px";
   
-  //268->462
+  //categories
   var percentDownScreen = ((e.clientY-machine.trueZeroY)/(machine.vizHeight));
   for(var i = 0; i < machine.categories.length; i++)
   {
-    var offset = 0-(percentDownScreen * (machine.categories[i].trueHeight-machine.vizHeight));
+    offset = 0-(percentDownScreen * (machine.categories[i].trueHeight-machine.vizHeight));
     offset = offset < ((machine.categories[i].trueHeight-machine.vizHeight)*-1) ? ((machine.categories[i].trueHeight-machine.vizHeight)*-1) : offset;
     offset = offset > 0 ? 0 : offset;
     machine.categories[i].htmlscroll.style.top = offset + "px";
   }
 
+  //roll
+  offset = 0-(percentAcrossScreen * (machine.trueWidth-machine.vizWidth));
+  offset = offset < ((machine.trueWidth-machine.vizWidth)*-1) ? ((machine.trueWidth-machine.vizWidth)*-1) : offset;
+  offset = offset > 0 ? 0 : offset;
+
+
   //document.getElementById('debug').innerHTML = "clientX:"+e.clientX+" clientY:"+e.clientY+" trueZeroX:"+machine.trueZeroX+" trueWidth:"+machine.trueWidth+" offset:"+offset+" <br />";
 }
 function windowresized(e)
 {
-  machine.trueZeroX = (window.innerWidth - machine.vizWidth) / 2; //the x of the left edge of the container with the categories in it
+  if(machine)
+    machine.trueZeroX = (window.innerWidth - machine.vizWidth) / 2; //the x of the left edge of the container with the categories in it
 }
 
 function init() 
@@ -437,8 +436,10 @@ function init()
   loadDefaults(null); 
   rollo = {};
   rollo.html = document.createElement('div');
-  rollo.html.innerHTML = "<- Roll To Design A Game!";
+  rollo.html.setAttribute('id','rollscroll');
+  rollo.html.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;<- Roll To Design A Game!";
   rollo.text = "You haven't rolled yet!";
+  document.getElementById('rcontent').appendChild(rollo.html);
   window.onresize = function(e) { windowresized() };
   document.addEventListener('mousemove', function(e) { mousemoved(e); });
   document.getElementById('redobtn').addEventListener('click', function(e) { loadDefaults(e); });

@@ -282,7 +282,16 @@ body
   width:535px;
   height:32px;
   background-color:#FFFFFF;
-  overflow:scroll;
+  overflow:hidden;
+  position:relative;
+}
+
+#rollscroll
+{
+  margin:0px auto;
+  padding:0px;
+  position:relative;
+  top:6px;
 }
 
 .rollchoice
