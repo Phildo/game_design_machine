@@ -1,5 +1,24 @@
+function getURLParam ( sname )
+{
+  var params = location.search.substr(location.search.indexOf("?")+1);
+  var sval = "";
+  params = params.split("&");
+  // split param and value into individual pieces
+  for (var i=0; i<params.length; i++)
+  {
+    temp = params[i].split("=");
+    if ( [temp[0]] == sname ) { sval = temp[1]; }
+  }
+  return sval;
+}
+
 function callService(serviceName, callback, GETparams, POSTparams)
 {
+  var url;
+  if(GETparams)
+    url = 'services/'+serviceName+'.php'+GETparams;
+  else
+    url = 'services/'+serviceName+'.php';
   var request = new XMLHttpRequest();
   request.onreadystatechange = function()
   {
@@ -13,7 +32,7 @@ function callService(serviceName, callback, GETparams, POSTparams)
         callback(false);
     }
   };
-  request.open('GET', 'services/'+serviceName+'.php', true);
+  request.open('GET', url, true);
 }
 
 function populateMachineFromJSON(data)
@@ -375,7 +394,14 @@ function endEdits(e)
 }
 function loadDefaults(e)
 {
-  callService('machine',populateMachineFromJSON);
+  loadMachine(null);
+}
+function loadMachine(machine)
+{
+  if(machine)
+    callService('machine',populateMachineFromJSON,machine);
+  else
+    callService('machine',populateMachineFromJSON);
 }
 function wipe(e)
 {
@@ -466,7 +492,8 @@ function windowresized(e)
 
 function init() 
 { 
-  loadDefaults(null); 
+  if(getURLParam('machine') == null) loadMachine(null); 
+  else loadMachine(getURLParam('machine'));
   rollo = {};
   rollo.infinitewidth = document.createElement('div');
   rollo.infinitewidth.style.width = '5000px';
