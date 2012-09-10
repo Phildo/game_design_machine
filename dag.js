@@ -21,12 +21,26 @@ function populateMachineFromJSON(data)
   if(!data) data = defaultOfflineMachine();
   data = JSON.parse(data);
   machine = new Machine(data.url, data.categories);
-  //alert(JSON.stringify(machine));
 }
 function defaultOfflineMachine()
 {
-  var d = '{"id":"1","url":"","categories":[{"id":"1","name":"cat_1","icon":"default_category.png","options":[{"id":"1","name":"opt_1","icon":"default_option.png"},{"id":"2","name":"opt_2","icon":"default_option.png"},{"id":"3","name":"opt_3","icon":"default_option.png"},{"id":"4","name":"opt_4","icon":"default_option.png"},{"id":"5","name":"opt_5","icon":"default_option.png"}]},{"id":"2","name":"cat_2","icon":"default_category.png","options":[{"id":"6","name":"opt_1","icon":"default_option.png"},{"id":"7","name":"opt_2","icon":"default_option.png"},{"id":"8","name":"opt_3","icon":"default_option.png"},{"id":"9","name":"opt_4","icon":"default_option.png"},{"id":"10","name":"opt_5","icon":"default_option.png"}]},{"id":"3","name":"cat_3","icon":"default_category.png","options":[{"id":"11","name":"opt_1","icon":"default_option.png"},{"id":"12","name":"opt_2","icon":"default_option.png"},{"id":"13","name":"opt_3","icon":"default_option.png"},{"id":"14","name":"opt_4","icon":"default_option.png"},{"id":"15","name":"opt_5","icon":"default_option.png"}]},{"id":"4","name":"cat_4","icon":"default_category.png","options":[{"id":"16","name":"opt_1","icon":"default_option.png"},{"id":"17","name":"opt_2","icon":"default_option.png"},{"id":"18","name":"opt_3","icon":"default_option.png"},{"id":"19","name":"opt_4","icon":"default_option.png"},{"id":"20","name":"opt_5","icon":"default_option.png"}]},{"id":"5","name":"cat_5","icon":"default_category.png","options":[{"id":"21","name":"opt_1","icon":"default_option.png"},{"id":"22","name":"opt_2","icon":"default_option.png"},{"id":"23","name":"opt_3","icon":"default_option.png"},{"id":"24","name":"opt_4","icon":"default_option.png"},{"id":"25","name":"opt_5","icon":"default_option.png"}]}]}'
+  var d = '{"id":"1","url":"","categories":[{"id":"1","name":"who","icon":"who_cat.png","options":[{"id":"1","name":"zombie","icon":"who_zombie_opt.png"},{"id":"2","name":"vampire","icon":"who_vampire_opt.png"},{"id":"3","name":"knight","icon":"who_knight_opt.png"}]},{"id":"2","name":"where","icon":"where_cat.png","options":[{"id":"4","name":"castle","icon":"where_castle_opt.png"},{"id":"5","name":"world","icon":"where_world_opt.png"},{"id":"6","name":"space","icon":"where_space_opt.png"}]},{"id":"3","name":"what","icon":"what_cat.png","options":[{"id":"7","name":"rescue","icon":"what_rescue_opt.png"},{"id":"8","name":"domination","icon":"what_domination_opt.png"},{"id":"9","name":"war","icon":"what_war_opt.png"}]}]}';
   return d;
+}
+
+function tick()
+{
+  if(machine)
+  {
+    machine.htmlscroll.style.left = machine.offset + "px";
+    for(var i = 0; i < machine.categories.length; i++)
+    {
+      machine.categories[i].htmlscroll.style.top = machine.categories[i].offset + "px";
+    }
+    rollo.offset -= 2;
+    if(rollo.offset < -1*rollo.trueWidth) rollo.offset = 545;
+    rollo.html.style.left = rollo.offset + "px";
+  }
 }
 
 function Machine(url, categories)
@@ -122,6 +136,7 @@ function Machine(url, categories)
   this.trueWidth = (this.categories.length * 230) + 30; //the width of the INVISBLE container with the categories in it
   this.trueZeroX = (window.innerWidth - this.vizWidth) / 2; //the x of the left edge of the container with the categories in it
   this.trueZeroY = 268;
+  this.offset = 0;
   if(document.getElementById('machine') != null) document.getElementById('content').removeChild(document.getElementById('machine'));
   document.getElementById('content').insertBefore(this.html, document.getElementById('roll'));
 
@@ -253,6 +268,7 @@ function Category(name, icon, index, options, owner)
     }
   }
   this.trueHeight = (this.options.length * 33) + 30; 
+  this.offset = 0;
 
   return this;
 }
@@ -323,6 +339,15 @@ function Option(name, icon, index, owner)
     this.htmlicon.src = 'images/icons/'+this.icon;
   }
 
+  this.select = function(e)
+  {
+    this.html.style.backgroundColor='#AAAAAA';
+  }
+  this.deselect = function(e)
+  {
+    this.html.style.backgroundColor='#DDDDDD';
+  }
+
   this.name = (name ? name : '???');
   this.icon = (icon ? icon : 'default_option.png');
   this.index = (index ? index : 0);
@@ -371,18 +396,24 @@ function roll(e)
   var ropt;
   rollo.text = '';
   rollo.html.innerHTML = '';
-  rollo.html.style.width = machine.categories.length*460+'px';
+  rollo.infinitewidth.style.width = machine.categories.length*460+'px';
   for(var i = 0; i < machine.categories.length; i++)
   {
     rollo.text += machine.categories[i].name+':';
     if(machine.categories[i].options.length > 0) 
     {
       to = machine.categories[i].options[Math.floor(Math.random()*machine.categories[i].options.length)];
+
+      for(var j = 0; j < machine.categories[i].options.length; j++)
+        machine.categories[i].options[j].deselect();
+      to.select();
+
       rollo.text += to.name;
 
-      rcat = "<div class='ctitle' style='float:left; position:relative; bottom:11px;'><img class='cicon' src='images/icons/"+machine.categories[i].icon+"' /><div class='ctext'><div class='cname'>"+machine.categories[i].name+":</div></div></div>";
-      ropt = "<div class='option' style='float:left; position:relative; bottom:2px;'><img class='oicon' src='images/icons/"+to.icon+"' /><div class='otext'><div class='oname'>"+to.name+"</div></div></div>";
-      rollo.html.innerHTML += rcat+ropt;
+      rcat = "<div class='ctitle' style='width:auto; float:left; position:relative; bottom:11px;'><img class='cicon' src='images/icons/"+machine.categories[i].icon+"' style='float:left;' /><div class='ctext' style='width:auto; float:left;'><div class='cname' style='width:auto; float:left;'>"+machine.categories[i].name+":</div></div></div>";
+      ropt = "<div class='option' style='width:auto; float:left; position:relative; bottom:4px;'><img class='oicon' src='images/icons/"+to.icon+"' style='float:left;' /><div class='otext' style='width:auto; float:left;'><div class='oname' style='width:auto; float:left;'>"+to.name+"</div></div></div>";
+      if(i < machine.categories.length-1) rollo.html.innerHTML += rcat+ropt+"<div style='width:30px; height:100px; float:left;'></div>";
+      else rollo.html.innerHTML += rcat+ropt;
     }
     else
     {
@@ -390,6 +421,7 @@ function roll(e)
     }
     rollo.text += ' ';
   }
+  rollo.trueWidth = rollo.html.offsetWidth+10;
 }
 function copy(e)
 {
@@ -400,28 +432,29 @@ function mousemoved(e)
 {
   if(machine == null) return;
   var percentAcrossScreen = ((e.clientX-machine.trueZeroX)/(machine.vizWidth));
+  var percentDownScreen = ((e.clientY-machine.trueZeroY)/(machine.vizHeight));
+  var offset;
 
   //machine
-  var offset = 0-(percentAcrossScreen * (machine.trueWidth-machine.vizWidth));
+  offset = 0-(percentAcrossScreen * (machine.trueWidth-machine.vizWidth));
   offset = offset < ((machine.trueWidth-machine.vizWidth)*-1) ? ((machine.trueWidth-machine.vizWidth)*-1) : offset;
   offset = offset > 0 ? 0 : offset;
-  document.getElementById('machinescroll').style.left = offset + "px";
+  machine.offset = offset;
   
   //categories
-  var percentDownScreen = ((e.clientY-machine.trueZeroY)/(machine.vizHeight));
   for(var i = 0; i < machine.categories.length; i++)
   {
     offset = 0-(percentDownScreen * (machine.categories[i].trueHeight-machine.vizHeight));
     offset = offset < ((machine.categories[i].trueHeight-machine.vizHeight)*-1) ? ((machine.categories[i].trueHeight-machine.vizHeight)*-1) : offset;
     offset = offset > 0 ? 0 : offset;
-    machine.categories[i].htmlscroll.style.top = offset + "px";
+    machine.categories[i].offset = offset;
   }
 
   //roll
-  offset = 0-(percentAcrossScreen * (machine.trueWidth-machine.vizWidth));
-  offset = offset < ((machine.trueWidth-machine.vizWidth)*-1) ? ((machine.trueWidth-machine.vizWidth)*-1) : offset;
+  offset = 0-(percentAcrossScreen * (rollo.trueWidth-545));
+  offset = offset < ((rollo.trueWidth-545)*-1) ? ((rollo.trueWidth-545)*-1) : offset;
   offset = offset > 0 ? 0 : offset;
-
+  //rollo.offset = offset;
 
   //document.getElementById('debug').innerHTML = "clientX:"+e.clientX+" clientY:"+e.clientY+" trueZeroX:"+machine.trueZeroX+" trueWidth:"+machine.trueWidth+" offset:"+offset+" <br />";
 }
@@ -435,11 +468,19 @@ function init()
 { 
   loadDefaults(null); 
   rollo = {};
+  rollo.infinitewidth = document.createElement('div');
+  rollo.infinitewidth.style.width = '5000px';
+  rollo.infinitewidth.style.position = 'relative';
   rollo.html = document.createElement('div');
   rollo.html.setAttribute('id','rollscroll');
+  rollo.html.style.position = 'relative';
+  rollo.html.style.float = 'left';
   rollo.html.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;<- Roll To Design A Game!";
   rollo.text = "You haven't rolled yet!";
-  document.getElementById('rcontent').appendChild(rollo.html);
+  rollo.trueWidth = 545;
+  rollo.offset = 0;
+  document.getElementById('rcontent').appendChild(rollo.infinitewidth);
+  rollo.infinitewidth.appendChild(rollo.html);
   window.onresize = function(e) { windowresized() };
   document.addEventListener('mousemove', function(e) { mousemoved(e); });
   document.getElementById('redobtn').addEventListener('click', function(e) { loadDefaults(e); });
@@ -450,6 +491,7 @@ function init()
   document.getElementById('copybtn').addEventListener('click', function(e) { copy(e); });
   document.addEventListener('keydown', function(e) { if(e.keyIdentifier == 'Shift' && machine != null) machine.shift(e); });
   document.addEventListener('keyup', function(e) { if(e.keyIdentifier == 'Shift' && machine != null) machine.unshift(e); });
+  setInterval(function(){tick()},20);
 }
 
 var machine;
