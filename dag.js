@@ -409,11 +409,11 @@ function wipe(e)
 }
 function load(e)
 {
-
+  alert('sorry, this function is still under construction!');
 }
 function save(e)
 {
-
+  alert('sorry, this function is still under construction!');
 }
 function roll(e)
 {
