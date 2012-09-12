@@ -448,10 +448,26 @@ function roll(e)
     rollo.text += ' ';
   }
   rollo.trueWidth = rollo.html.offsetWidth+10;
+  view(null);
+}
+function view(e)
+{
+  displayMessage(rollo.text);
 }
 function copy(e)
 {
   alert(rollo.text);
+}
+function hideMessage(e)
+{
+  document.getElementById('blur').style.display = 'none';
+  document.getElementById('messagebox').style.display = 'none';
+}
+function displayMessage(message)
+{
+  document.getElementById('messagebox').innerHTML = message;
+  document.getElementById('blur').style.display='block';
+  document.getElementById('messagebox').style.display='block';
 }
 
 function mousemoved(e)
@@ -492,8 +508,9 @@ function windowresized(e)
 
 function init() 
 { 
-  if(getURLParam('machine') == null) loadMachine(null); 
-  else loadMachine(getURLParam('machine'));
+  if(getURLParam('m') == null) loadMachine(null); 
+  else loadMachine(getURLParam('m'));
+
   rollo = {};
   rollo.infinitewidth = document.createElement('div');
   rollo.infinitewidth.style.width = '5000px';
@@ -515,7 +532,9 @@ function init()
   document.getElementById('loadbtn').addEventListener('click', function(e) { load(e); });
   document.getElementById('savebtn').addEventListener('click', function(e) { save(e); });
   document.getElementById('rollbtn').addEventListener('click', function(e) { roll(e); });
-  document.getElementById('copybtn').addEventListener('click', function(e) { copy(e); });
+  document.getElementById('viewbtn').addEventListener('click', function(e) { view(e); });
+  document.getElementById('blur').addEventListener('click', function(e) { hideMessage(e); });
+  document.getElementById('messagebox').addEventListener('click', function(e) { hideMessage(e); });
   document.addEventListener('keydown', function(e) { if(e.keyIdentifier == 'Shift' && machine != null) machine.shift(e); });
   document.addEventListener('keyup', function(e) { if(e.keyIdentifier == 'Shift' && machine != null) machine.unshift(e); });
   setInterval(function(){tick()},20);
