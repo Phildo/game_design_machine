@@ -58,7 +58,7 @@ function tick()
     }
     rollo.offset -= 2;
     if(rollo.offset < -1*rollo.trueWidth) rollo.offset = 545;
-    rollo.html.style.left = rollo.offset + "px";
+    rollo.htmlscroll.style.left = rollo.offset + "px";
   }
 }
 
@@ -375,6 +375,159 @@ function Option(name, icon, index, owner)
 
   return this;
 }
+function Roll()
+{
+  this.html = document.getElementById('rcontent');
+
+  this.expansionroom = document.createElement('div');
+  this.expansionroom.style.width = '5000px';
+  this.expansionroom.style.position = 'relative';
+  this.html.appendChild(this.expansionroom);
+
+  this.htmlscroll = document.createElement('div');
+  this.htmlscroll.setAttribute('id','rollscroll');
+  this.htmlscroll.style.position = 'relative';
+  this.htmlscroll.style.float = 'left';
+  this.htmlscroll.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;<- Roll To Design A Game!";
+  this.expansionroom.appendChild(this.htmlscroll);
+
+  this.displayhtml = document.createElement('div');
+  this.displayhtml.style.backgroundColor = '#FFFFFF';
+  this.displaytable = document.createElement('table');
+  this.displaytable.setAttribute('border','0');
+  this.displaytable.setAttribute('cellpadding','0');
+  this.displaytable.setAttribute('cellspacing','0');
+  this.displayhtml.appendChild(this.displaytable);
+
+  this.text = "You haven't rolled yet!";
+  this.trueWidth = 545;
+  this.offset = 0;
+
+  this.go = function()
+  {
+    this.htmlscroll.innerHTML = '';
+    this.expansionroom.style.width = machine.categories.length*500+'px'; //give more than enough room for floats to go side by side
+    this.displaytable.innerHTML = '';
+
+    this.text = '';
+    var displaycat;
+    var rollcat;
+    var displayopt;
+    var rollcat;
+    var tempa;
+    var tempb;
+    var row;
+    var col;
+    row = document.createElement('tr');
+    col = document.createElement('td');
+    col.setAttribute('colspan','2');
+    col.style.textAlign = 'center';
+    col.style.fontSize = 'x-large';
+    col.innerHTML = 'Your Game:<br />';
+    row.appendChild(col);
+    this.displaytable.appendChild(row);
+    var rollspacer = document.createElement('div');
+    rollspacer.style.width = '30px';
+    rollspacer.style.height = '100px';
+    rollspacer.style.float = 'left';
+
+    for(var i = 0; i < machine.categories.length; i++)
+    {
+      if(machine.categories[i].options.length > 0) 
+      {
+        row = document.createElement('tr');
+
+        //Category
+        rollcat = document.createElement('div');
+        rollcat.setAttribute('class', 'ctitle');
+        displaycat = rollcat.cloneNode(true);
+        rollcat.style.width = 'auto';
+        rollcat.style.float = 'left';
+        rollcat.style.position = 'relative';
+        rollcat.style.bottom = '11px';
+
+        tempa = document.createElement('img');
+        tempa.setAttribute('class','cicon');
+        tempa.setAttribute('src','images/icons/'+machine.categories[i].icon);
+        displaycat.appendChild(tempa.cloneNode(true));
+        tempa.style.float = 'left';
+        rollcat.appendChild(tempa);
+
+        tempa = document.createElement('div');
+        tempa.setAttribute('class','ctext');
+        tempb = document.createElement('div'); //<- funky re-ordering of the construction of elements to cleverly duplicate them with only 2 temp vars because I'm lazy
+        tempb.setAttribute('class','cname');
+        tempb.innerHTML = machine.categories[i].name+':';
+        tempa.appendChild(tempb);
+        displaycat.appendChild(tempa.cloneNode(true));
+        tempa.style.width = 'auto';
+        tempa.style.float = 'left';
+        rollcat.appendChild(tempa);
+
+        tempb.style.width = 'auto';
+        tempb.style.float = 'left';
+
+        col = document.createElement('td');
+        col.appendChild(displaycat);
+        row.appendChild(col);
+        
+        //Option
+        var topt = machine.categories[i].options[Math.floor(Math.random()*machine.categories[i].options.length)];
+        for(var j = 0; j < machine.categories[i].options.length; j++)
+          machine.categories[i].options[j].deselect();
+        topt.select();
+
+        rollopt = document.createElement('div');
+        rollopt.setAttribute('class', 'option');
+        displayopt = rollopt.cloneNode(true);
+        rollopt.style.width = 'auto';
+        rollopt.style.float = 'left';
+        rollopt.style.position = 'relative';
+        rollopt.style.bottom = '4px';
+
+        tempa = document.createElement('img');
+        tempa.setAttribute('class','oicon');
+        tempa.setAttribute('src','images/icons/'+topt.icon);
+        displayopt.appendChild(tempa.cloneNode(true));
+        tempa.style.float = 'left';
+        rollopt.appendChild(tempa);
+
+        tempa = document.createElement('div');
+        tempa.setAttribute('class','otext');
+        tempb = document.createElement('div'); //<- again, funky reordering to duplicate only the stuff I want
+        tempb.setAttribute('class','oname');
+        tempb.innerHTML = topt.name;
+        tempa.appendChild(tempb);
+        displayopt.appendChild(tempa.cloneNode(true));
+        tempa.style.width = 'auto';
+        tempa.style.float = 'left';
+        rollopt.appendChild(tempa);
+
+        tempb.style.width = 'auto';
+        tempb.style.float = 'left';
+
+        col = document.createElement('td');
+        col.appendChild(displayopt);
+        row.appendChild(col);
+
+        //Plaintext(both)
+        this.text += machine.categories[i].name+':';
+        this.text += topt.name;
+        this.text += ' \n';
+  
+        //Place elements
+        this.htmlscroll.appendChild(rollcat);
+        this.htmlscroll.appendChild(rollopt);
+        if(i < machine.categories.length-1) 
+          this.htmlscroll.appendChild(rollspacer.cloneNode(true));
+        this.displaytable.appendChild(row);
+      }
+    }
+    this.trueWidth = this.htmlscroll.offsetWidth+10;
+    this.expansionroom.style.width = (this.trueWidth+100)+'px'; //shrink it back down to reasonable size (should still have soom breathing space though)
+    view(null);
+  }
+}
 
 function addBlankCat(e)
 {
@@ -417,42 +570,11 @@ function save(e)
 }
 function roll(e)
 {
-  var to;
-  var rcat;
-  var ropt;
-  rollo.text = '';
-  rollo.html.innerHTML = '';
-  rollo.infinitewidth.style.width = machine.categories.length*460+'px';
-  for(var i = 0; i < machine.categories.length; i++)
-  {
-    rollo.text += machine.categories[i].name+':';
-    if(machine.categories[i].options.length > 0) 
-    {
-      to = machine.categories[i].options[Math.floor(Math.random()*machine.categories[i].options.length)];
-
-      for(var j = 0; j < machine.categories[i].options.length; j++)
-        machine.categories[i].options[j].deselect();
-      to.select();
-
-      rollo.text += to.name;
-
-      rcat = "<div class='ctitle' style='width:auto; float:left; position:relative; bottom:11px;'><img class='cicon' src='images/icons/"+machine.categories[i].icon+"' style='float:left;' /><div class='ctext' style='width:auto; float:left;'><div class='cname' style='width:auto; float:left;'>"+machine.categories[i].name+":</div></div></div>";
-      ropt = "<div class='option' style='width:auto; float:left; position:relative; bottom:4px;'><img class='oicon' src='images/icons/"+to.icon+"' style='float:left;' /><div class='otext' style='width:auto; float:left;'><div class='oname' style='width:auto; float:left;'>"+to.name+"</div></div></div>";
-      if(i < machine.categories.length-1) rollo.html.innerHTML += rcat+ropt+"<div style='width:30px; height:100px; float:left;'></div>";
-      else rollo.html.innerHTML += rcat+ropt;
-    }
-    else
-    {
-      rollo.text += '(no option available)';
-    }
-    rollo.text += ' ';
-  }
-  rollo.trueWidth = rollo.html.offsetWidth+10;
-  view(null);
+  rollo.go();
 }
 function view(e)
 {
-  displayMessage(rollo.text);
+  displayMessage(rollo.displayhtml);
 }
 function copy(e)
 {
@@ -465,7 +587,9 @@ function hideMessage(e)
 }
 function displayMessage(message)
 {
-  document.getElementById('messagebox').innerHTML = message;
+  document.getElementById('messagebox').innerHTML ='';
+  document.getElementById('messagebox').appendChild(message);
+  
   document.getElementById('blur').style.display='block';
   document.getElementById('messagebox').style.display='block';
 }
@@ -492,12 +616,6 @@ function mousemoved(e)
     machine.categories[i].offset = offset;
   }
 
-  //roll
-  offset = 0-(percentAcrossScreen * (rollo.trueWidth-545));
-  offset = offset < ((rollo.trueWidth-545)*-1) ? ((rollo.trueWidth-545)*-1) : offset;
-  offset = offset > 0 ? 0 : offset;
-  //rollo.offset = offset;
-
   //document.getElementById('debug').innerHTML = "clientX:"+e.clientX+" clientY:"+e.clientY+" trueZeroX:"+machine.trueZeroX+" trueWidth:"+machine.trueWidth+" offset:"+offset+" <br />";
 }
 function windowresized(e)
@@ -510,21 +628,7 @@ function init()
 { 
   if(getURLParam('m') == null) loadMachine(null); 
   else loadMachine(getURLParam('m'));
-
-  rollo = {};
-  rollo.infinitewidth = document.createElement('div');
-  rollo.infinitewidth.style.width = '5000px';
-  rollo.infinitewidth.style.position = 'relative';
-  rollo.html = document.createElement('div');
-  rollo.html.setAttribute('id','rollscroll');
-  rollo.html.style.position = 'relative';
-  rollo.html.style.float = 'left';
-  rollo.html.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;<- Roll To Design A Game!";
-  rollo.text = "You haven't rolled yet!";
-  rollo.trueWidth = 545;
-  rollo.offset = 0;
-  document.getElementById('rcontent').appendChild(rollo.infinitewidth);
-  rollo.infinitewidth.appendChild(rollo.html);
+  rollo = new Roll();
   window.onresize = function(e) { windowresized() };
   document.addEventListener('mousemove', function(e) { mousemoved(e); });
   document.getElementById('redobtn').addEventListener('click', function(e) { loadDefaults(e); });
@@ -541,6 +645,6 @@ function init()
 }
 
 var machine;
-var roll;
+var rollo;
 
 window.addEventListener('load', init, false);
