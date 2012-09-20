@@ -12,6 +12,11 @@ div
     src:url('fonts/emulogic.ttf');
 }
 
+a:link { color: #000000; }
+a:visited { color: #000000; }
+a:hover { color: #555555; }
+a:active { color: #000000; }
+
 body
 {
   font-family:vg_font, Courrier;

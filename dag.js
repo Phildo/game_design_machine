@@ -397,6 +397,7 @@ function Roll()
   this.displaytable.setAttribute('border','0');
   this.displaytable.setAttribute('cellpadding','0');
   this.displaytable.setAttribute('cellspacing','0');
+  this.displaytable.innerHTML = 'You haven\'t rolled yet!';
   this.displayhtml.appendChild(this.displaytable);
 
   this.tabletitlegap = document.createElement('tr');
@@ -404,6 +405,17 @@ function Roll()
   this.tabletitlegapcell.setAttribute('colspan','2');
   this.tabletitlegapcell.height = '15px';
   this.tabletitlegap.appendChild(this.tabletitlegapcell);
+
+  this.plaintextrow = document.createElement('tr');
+  this.plaintextcell = document.createElement('td');
+  this.plaintextcell.setAttribute('colspan','2');
+  this.plaintextcell.addEventListener('click', function(e) { viewPlainText(e); });
+  this.plaintextcell.innerHTML = '<a href="javascript:\';\'">plain text?</a>';
+  this.plaintextcell.style.textAlign = 'center';
+  this.plaintextcell.style.fontSize = 'x-small';
+  this.plaintextcell.style.height = '30px';
+  //this.plaintextcell.style.height = '15px';
+  this.plaintextrow.appendChild(this.plaintextcell);
 
   this.text = "You haven't rolled yet!";
   this.trueWidth = 545;
@@ -537,6 +549,8 @@ function Roll()
         this.displaytable.appendChild(row);
       }
     }
+    if(atleastonecat)
+      this.displaytable.appendChild(this.plaintextrow);
     this.trueWidth = this.htmlscroll.offsetWidth+10;
     this.expansionroom.style.width = (this.trueWidth+100)+'px'; //shrink it back down to reasonable size (should still have soom breathing space though)
     view(null);
@@ -588,7 +602,14 @@ function roll(e)
 }
 function view(e)
 {
-  displayMessage(rollo.displayhtml);
+  if(rollo.displayhtml)
+    displayMessage(rollo.displayhtml);
+  else
+    roll(e);
+}
+function viewPlainText(e)
+{
+  copy(e);
 }
 function copy(e)
 {
