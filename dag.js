@@ -399,6 +399,12 @@ function Roll()
   this.displaytable.setAttribute('cellspacing','0');
   this.displayhtml.appendChild(this.displaytable);
 
+  this.tabletitlegap = document.createElement('tr');
+  this.tabletitlegapcell = document.createElement('td');
+  this.tabletitlegapcell.setAttribute('colspan','2');
+  this.tabletitlegapcell.height = '15px';
+  this.tabletitlegap.appendChild(this.tabletitlegapcell);
+
   this.text = "You haven't rolled yet!";
   this.trueWidth = 545;
   this.offset = 0;
@@ -418,6 +424,8 @@ function Roll()
     var tempb;
     var row;
     var col;
+    var atleastonecat = false;
+
     row = document.createElement('tr');
     col = document.createElement('td');
     col.setAttribute('colspan','2');
@@ -435,6 +443,12 @@ function Roll()
     {
       if(machine.categories[i].options.length > 0) 
       {
+        if(!atleastonecat)
+        {
+          this.displaytable.appendChild(this.tabletitlegap);
+          atleastonecat = true;
+        }
+
         row = document.createElement('tr');
 
         //Category
@@ -510,7 +524,7 @@ function Roll()
         col.appendChild(displayopt);
         row.appendChild(col);
 
-        //Plaintext(both)
+        //Plaintext(cat+opt)
         this.text += machine.categories[i].name+':';
         this.text += topt.name;
         this.text += ' \n';
@@ -592,6 +606,14 @@ function displayMessage(message)
   
   document.getElementById('blur').style.display='block';
   document.getElementById('messagebox').style.display='block';
+
+  var ow = document.getElementById('messagebox').offsetWidth;
+  var oh = document.getElementById('messagebox').offsetHeight;
+  var ww = window.innerWidth;
+  var wh = window.innerHeight;
+
+  document.getElementById('messagebox').style.top = ((wh/2)-(oh/2)) + 'px';
+  document.getElementById('messagebox').style.left = ((ww/2)-(ow/2)) + 'px';
 }
 
 function mousemoved(e)
