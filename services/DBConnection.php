@@ -9,6 +9,13 @@ Class DBConnection
     $this->con = new mysqli(MysqlConf::host, MysqlConf::db_user, MysqlConf::db_pass, MysqlConf::db);
   }
 
+  function query($query, $debug = false)
+  {
+    if($debug) echo $query;
+    $this->con->query($query);
+    return $this->con->insert_id;
+  }
+
   function queryObj($query, $debug = false)
   {
     if($debug) echo $query;

@@ -22,9 +22,9 @@ function callService(serviceName, callback, GETparams, POSTparams)
   var request = new XMLHttpRequest();
   request.onreadystatechange = function()
   {
-    if(request.readyState == 1) 
-      request.send();
-    else if(request.readyState == 4)
+    //if(request.readyState == 1) 
+      //request.send();
+    if(request.readyState == 4)
     {
       if(request.status == 200)
         callback(request.responseText);
@@ -32,37 +32,56 @@ function callService(serviceName, callback, GETparams, POSTparams)
         callback(false);
     }
   };
-  request.open('GET', url, true);
+  if(POSTparams)
+  {
+    request.open('POST', url, true);
+    request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    request.send(POSTparams);
+  }
+  else
+  {
+    request.open('GET', url, true);
+    request.send();
+  }
 }
 
 function populateMachineFromJSON(data)
 {
   if(!data) data = defaultOfflineMachine();
   data = JSON.parse(data);
-  machine = new Machine(data.url, data.categories);
+  machine = new Machine(data.m_key, data.categories);
 }
 function defaultOfflineMachine()
 {
-  var d = '{"id":"1","url":"","categories":[{"id":"1","name":"who","icon":"who_cat.png","options":[{"id":"1","name":"zombie","icon":"who_zombie_opt.png"},{"id":"2","name":"vampire","icon":"who_vampire_opt.png"},{"id":"3","name":"knight","icon":"who_knight_opt.png"}]},{"id":"2","name":"where","icon":"where_cat.png","options":[{"id":"4","name":"castle","icon":"where_castle_opt.png"},{"id":"5","name":"world","icon":"where_world_opt.png"},{"id":"6","name":"space","icon":"where_space_opt.png"}]},{"id":"3","name":"what","icon":"what_cat.png","options":[{"id":"7","name":"rescue","icon":"what_rescue_opt.png"},{"id":"8","name":"domination","icon":"what_domination_opt.png"},{"id":"9","name":"war","icon":"what_war_opt.png"}]}]}';
+  var d = '{"id":"1","m_key":"","categories":[{"id":"1","name":"who","icon":"who_cat.png","options":[{"id":"1","name":"zombie","icon":"who_zombie_opt.png"},{"id":"2","name":"vampire","icon":"who_vampire_opt.png"},{"id":"3","name":"knight","icon":"who_knight_opt.png"}]},{"id":"2","name":"where","icon":"where_cat.png","options":[{"id":"4","name":"castle","icon":"where_castle_opt.png"},{"id":"5","name":"world","icon":"where_world_opt.png"},{"id":"6","name":"space","icon":"where_space_opt.png"}]},{"id":"3","name":"what","icon":"what_cat.png","options":[{"id":"7","name":"rescue","icon":"what_rescue_opt.png"},{"id":"8","name":"domination","icon":"what_domination_opt.png"},{"id":"9","name":"war","icon":"what_war_opt.png"}]}]}';
   return d;
+}
+function showSaveResult(data)
+{
+  alert('woah!\n'+data);
 }
 
 function tick()
 {
   if(machine)
   {
-    machine.htmlscroll.style.left = machine.offset + "px";
-    for(var i = 0; i < machine.categories.length; i++)
+    if(machine.dirtyBit)
     {
-      machine.categories[i].htmlscroll.style.top = machine.categories[i].offset + "px";
+      machine.htmlscroll.style.left = machine.offset + "px";
+      for(var i = 0; i < machine.categories.length; i++)
+      {
+        machine.categories[i].htmlscroll.style.top = machine.categories[i].offset + "px";
+      }
+      machine.dirtyBit = false;
     }
+
     rollo.offset -= 2;
     if(rollo.offset < -1*rollo.trueWidth) rollo.offset = 545;
     rollo.htmlscroll.style.left = rollo.offset + "px";
   }
 }
 
-function Machine(url, categories)
+function Machine(m_key, categories)
 {
   this.constructHTML = function()
   {
@@ -139,7 +158,17 @@ function Machine(url, categories)
       this.categories[i].unshift(e);
   }
 
-  this.url = (url ? url : '');
+  this.json = function()
+  {
+    var m = '{"categories":[';
+    for(var i = 0; i < this.categories.length; i++)
+      m += this.categories[i].json()+",";
+    if(this.categories.length > 0) m = m.substring(0,m.length-1);
+    m += "]}";
+    return m;
+  }
+
+  this.m_key = (m_key ? m_key : '');
   this.constructHTML();
   this.categories = [];
   if(categories)
@@ -156,6 +185,7 @@ function Machine(url, categories)
   this.trueZeroX = (window.innerWidth - this.vizWidth) / 2; //the x of the left edge of the container with the categories in it
   this.trueZeroY = 268;
   this.offset = 0;
+  this.dirtyBit = true;
   if(document.getElementById('machine') != null) document.getElementById('content').removeChild(document.getElementById('machine'));
   document.getElementById('content').insertBefore(this.html, document.getElementById('roll'));
 
@@ -272,6 +302,16 @@ function Category(name, icon, index, options, owner)
       this.options[i].unshift(e);
   }
 
+  this.json = function()
+  {
+    var c = '{"name":"'+this.name+'","icon":"'+this.icon+'","options":[';
+    for(var i = 0; i < this.options.length; i++)
+      c += this.options[i].json()+",";
+    if(this.options.length > 0) c = c.substring(0,c.length-1);
+    c += "]}";
+    return c;
+  }
+
   this.name = (name ? name : '???');
   this.icon = (icon ? icon : 'default_category.png');
   this.index = (index ? index : 0);
@@ -365,6 +405,12 @@ function Option(name, icon, index, owner)
   this.deselect = function(e)
   {
     this.html.style.backgroundColor='#DDDDDD';
+  }
+
+  this.json = function()
+  {
+    var o = '{"name":"'+this.name+'","icon":"'+this.icon+'"}';
+    return o;
   }
 
   this.name = (name ? name : '???');
@@ -553,8 +599,139 @@ function Roll()
       this.displaytable.appendChild(this.plaintextrow);
     this.trueWidth = this.htmlscroll.offsetWidth+10;
     this.expansionroom.style.width = (this.trueWidth+100)+'px'; //shrink it back down to reasonable size (should still have soom breathing space though)
-    view(null);
   }
+}
+function FileMan()
+{
+  this.loadQueryBoxHtml = null;
+  this.keyInputHtml = null
+  this.confirmLoadButtonHtml = null;
+
+  this.newSaveQueryBoxHtml = null;
+  this.oldSaveQueryBoxHtml = null;
+  this.newPassInputHtml = null;
+  this.oldPassInputHtml = null;
+  this.confirmNewSaveButtonHtml = null;
+  this.confirmOldSaveButtonHtml = null;
+  
+  this.constructHTML = function()
+  {
+    var tmpElA;
+    var tmpElB;
+
+    this.loadQueryBoxHtml = document.createElement('div');
+    //Construct Title
+    tmpElA = document.createElement('div');
+    tmpElA.innerHTML = "load machine";
+    tmpElA.style.paddingBottom = '10px';
+    tmpElA.style.fontSize = 'x-large';
+    tmpElA.style.margin = '0px auto';
+    this.loadQueryBoxHtml.appendChild(tmpElA);
+    //Construct Input
+    tmpElA = document.createElement('div');
+    tmpElA.innerHTML = "key: ";
+    tmpElA.style.width = '210px';
+    tmpElA.style.margin = '0px auto';
+    this.keyInputHtml = document.createElement('input');
+    this.keyInputHtml.setAttribute('id','keyInput');
+    this.keyInputHtml.setAttribute('type','text');
+    this.keyInputHtml.addEventListener('click', function(e) { if(e != null) e.stopPropagation(); });
+    this.keyInputHtml.addEventListener('keypress', function(e) { if(e.keyIdentifier == "Enter") { confirmLoad(e); hideMessage(e); } });
+    tmpElA.appendChild(this.keyInputHtml);
+    this.loadQueryBoxHtml.appendChild(tmpElA);
+    //ConstructButtons
+    tmpElA = document.createElement('div');
+    tmpElA.style.paddingTop = '10px';
+    tmpElA.style.margin = '0px auto';
+    this.confirmLoadButtonHtml = document.createElement('div'); //confirmLoadButton is just being used as placeholder here
+    this.confirmLoadButtonHtml.setAttribute('class','button');
+    this.confirmLoadButtonHtml.style.float = 'left';
+    this.confirmLoadButtonHtml.innerHTML = 'back';
+    this.confirmLoadButtonHtml.style.textAlign = 'center';
+    tmpElA.appendChild(this.confirmLoadButtonHtml);
+    this.confirmLoadButtonHtml = this.confirmLoadButtonHtml.cloneNode(true);
+    this.confirmLoadButtonHtml.innerHTML = 'load';
+    this.confirmLoadButtonHtml.style.float = 'right';
+    this.confirmLoadButtonHtml.addEventListener('click', function(e) { confirmLoad(e); });
+    tmpElA.appendChild(this.confirmLoadButtonHtml);
+    this.loadQueryBoxHtml.appendChild(tmpElA);
+
+    this.newSaveQueryBoxHtml = document.createElement('div');
+    //Construct Title
+    tmpElA = document.createElement('div');
+    tmpElA.innerHTML = "save machine";
+    tmpElA.style.paddingBottom = '10px';
+    tmpElA.style.fontSize = 'x-large';
+    tmpElA.style.margin = '0px auto';
+    this.newSaveQueryBoxHtml.appendChild(tmpElA);
+    //Construct Input
+    tmpElA = document.createElement('div');
+    tmpElA.innerHTML = "password: ";
+    tmpElA.style.width = '290px';
+    tmpElA.style.margin = '0px auto';
+    this.newPassInputHtml = document.createElement('input');
+    this.newPassInputHtml.setAttribute('id','newPassInput');
+    this.newPassInputHtml.setAttribute('type','password');
+    this.newPassInputHtml.addEventListener('click', function(e) { if(e != null) e.stopPropagation(); });
+    this.newPassInputHtml.addEventListener('keypress', function(e) { if(e.keyIdentifier == "Enter") { confirmSaveNew(e); hideMessage(e); } });
+    tmpElA.appendChild(this.newPassInputHtml);
+    this.newSaveQueryBoxHtml.appendChild(tmpElA);
+    //ConstructButtons
+    tmpElA = document.createElement('div');
+    tmpElA.style.paddingTop = '10px';
+    tmpElA.style.margin = '0px auto';
+    this.confirmNewSaveButtonHtml = document.createElement('div'); //confirmSaveButton is just being used as placeholder here
+    this.confirmNewSaveButtonHtml.setAttribute('class','button');
+    this.confirmNewSaveButtonHtml.style.float = 'left';
+    this.confirmNewSaveButtonHtml.innerHTML = 'back';
+    this.confirmNewSaveButtonHtml.style.textAlign = 'center';
+    tmpElA.appendChild(this.confirmNewSaveButtonHtml);
+    this.confirmNewSaveButtonHtml = this.confirmNewSaveButtonHtml.cloneNode(true);
+    this.confirmNewSaveButtonHtml.innerHTML = 'save';
+    this.confirmNewSaveButtonHtml.style.float = 'right';
+    this.confirmNewSaveButtonHtml.addEventListener('click', function(e) { confirmSaveNew(e); });
+    tmpElA.appendChild(this.confirmNewSaveButtonHtml);
+    this.newSaveQueryBoxHtml.appendChild(tmpElA);
+
+    this.oldSaveQueryBoxHtml = document.createElement('div');
+    //Construct Title
+    tmpElA = document.createElement('div');
+    tmpElA.innerHTML = "save machine";
+    tmpElA.style.paddingBottom = '10px';
+    tmpElA.style.fontSize = 'x-large';
+    tmpElA.style.margin = '0px auto';
+    this.oldSaveQueryBoxHtml.appendChild(tmpElA);
+    //Construct Input
+    tmpElA = document.createElement('div');
+    tmpElA.innerHTML = "password: ";
+    tmpElA.style.width = '290px';
+    tmpElA.style.margin = '0px auto';
+    this.oldPassInputHtml = document.createElement('input');
+    this.oldPassInputHtml.setAttribute('id','oldPassInput');
+    this.oldPassInputHtml.setAttribute('type','password');
+    this.oldPassInputHtml.addEventListener('click', function(e) { if(e != null) e.stopPropagation(); });
+    this.oldPassInputHtml.addEventListener('keypress', function(e) { if(e.keyIdentifier == "Enter") { confirmSaveOld(e); hideMessage(e); } });
+    tmpElA.appendChild(this.oldPassInputHtml);
+    this.oldSaveQueryBoxHtml.appendChild(tmpElA);
+    //ConstructButtons
+    tmpElA = document.createElement('div');
+    tmpElA.style.paddingTop = '10px';
+    tmpElA.style.margin = '0px auto';
+    this.confirmOldSaveButtonHtml = document.createElement('div'); //confirmSaveButton is just being used as placeholder here
+    this.confirmOldSaveButtonHtml.setAttribute('class','button');
+    this.confirmOldSaveButtonHtml.style.float = 'left';
+    this.confirmOldSaveButtonHtml.innerHTML = 'back';
+    this.confirmOldSaveButtonHtml.style.textAlign = 'center';
+    tmpElA.appendChild(this.confirmOldSaveButtonHtml);
+    this.confirmOldSaveButtonHtml = this.confirmOldSaveButtonHtml.cloneNode(true);
+    this.confirmOldSaveButtonHtml.innerHTML = 'save';
+    this.confirmOldSaveButtonHtml.style.float = 'right';
+    this.confirmOldSaveButtonHtml.addEventListener('click', function(e) { confirmSaveOld(e); });
+    tmpElA.appendChild(this.confirmOldSaveButtonHtml);
+    this.oldSaveQueryBoxHtml.appendChild(tmpElA);
+
+  }
+  this.constructHTML();
 }
 
 function addBlankCat(e)
@@ -577,28 +754,46 @@ function loadDefaults(e)
 {
   loadMachine(null);
 }
-function loadMachine(machine)
+function loadMachine(m_key)
 {
-  if(machine)
-    callService('machine',populateMachineFromJSON,machine);
+  if(m_key)
+    callService('machine',populateMachineFromJSON,'?k='+m_key);
   else
     callService('machine',populateMachineFromJSON);
 }
+function saveMachine(password,json,m_key)
+{
+  if(m_key)
+    callService('machine',showSaveResult,'?k='+m_key,'m='+json+'&p='+password);//CryptoJS.MD5(password));
+  else
+    callService('machine',showSaveResult,'','m='+json+'&p='+password);//CryptoJS.MD5(password));
+}
 function wipe(e)
 {
-  machine = new Machine(machine.url, []);
+  machine = new Machine(machine.m_key, []);
 }
 function load(e)
 {
-  alert('sorry, this function is still under construction!');
+  displayMessage(fileMan.loadQueryBoxHtml);
+  fileMan.keyInputHtml.select();
 }
 function save(e)
 {
-  alert('sorry, this function is still under construction!');
+  if(machine.m_key != '')
+  {
+    displayMessage(fileMan.oldSaveQueryBoxHtml);
+    fileMan.oldPassInputHtml.select();
+  }
+  else
+  {
+    displayMessage(fileMan.newSaveQueryBoxHtml);
+    fileMan.newPassInputHtml.select();
+  }
 }
 function roll(e)
 {
   rollo.go();
+  view(e);
 }
 function view(e)
 {
@@ -636,6 +831,18 @@ function displayMessage(message)
   document.getElementById('messagebox').style.top = ((wh/2)-(oh/2)) + 'px';
   document.getElementById('messagebox').style.left = ((ww/2)-(ow/2)) + 'px';
 }
+function confirmLoad(e)
+{
+  loadMachine(fileMan.keyInputHtml.value);
+}
+function confirmSaveOld(e)
+{
+  saveMachine(fileMan.oldPassInputHtml.value,machine.json(),machine.m_key);
+}
+function confirmSaveNew(e)
+{
+  saveMachine(fileMan.newPassInputHtml.value,machine.json(),null);
+}
 
 function mousemoved(e)
 {
@@ -648,6 +855,7 @@ function mousemoved(e)
   offset = 0-(percentAcrossScreen * (machine.trueWidth-machine.vizWidth));
   offset = offset < ((machine.trueWidth-machine.vizWidth)*-1) ? ((machine.trueWidth-machine.vizWidth)*-1) : offset;
   offset = offset > 0 ? 0 : offset;
+  if(machine.offset != offset) machine.dirtyBit = true;
   machine.offset = offset;
   
   //categories
@@ -656,6 +864,7 @@ function mousemoved(e)
     offset = 0-(percentDownScreen * (machine.categories[i].trueHeight-machine.vizHeight));
     offset = offset < ((machine.categories[i].trueHeight-machine.vizHeight)*-1) ? ((machine.categories[i].trueHeight-machine.vizHeight)*-1) : offset;
     offset = offset > 0 ? 0 : offset;
+    if(machine.categories[i].offset != offset) machine.dirtyBit = true;
     machine.categories[i].offset = offset;
   }
 
@@ -669,9 +878,10 @@ function windowresized(e)
 
 function init() 
 { 
-  if(getURLParam('m') == null) loadMachine(null); 
-  else loadMachine(getURLParam('m'));
+  if(getURLParam('k') == '') loadMachine(null); 
+  else loadMachine(getURLParam('k'));
   rollo = new Roll();
+  fileMan = new FileMan();
   window.onresize = function(e) { windowresized() };
   document.addEventListener('mousemove', function(e) { mousemoved(e); });
   document.getElementById('redobtn').addEventListener('click', function(e) { loadDefaults(e); });
@@ -689,5 +899,6 @@ function init()
 
 var machine;
 var rollo;
+var fileMan;
 
 window.addEventListener('load', init, false);
