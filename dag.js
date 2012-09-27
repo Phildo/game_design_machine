@@ -14,7 +14,7 @@ function getURLParam ( sname )
 
 function callService(serviceName, callback, GETparams, POSTparams)
 {
-  alert(serviceName+" "+callback+" "+GETparams);
+  //alert(serviceName+" "+callback+" "+GETparams);
   var url;
   if(GETparams)
     url = 'services/'+serviceName+'.php'+GETparams;
@@ -926,7 +926,7 @@ function windowresized(e)
 function init() 
 { 
   if(getURLParam('k') != '') loadMachine(getURLParam('k'));
-  else if (readCookie('key')) window.location = "./index.html?k="+readCookie('key'); //Actually reload the page, so the browser will cache the site with key in name
+  else if (readCookie('key')) loadMachine('key'); //Actually reload the page, so the browser will cache the site with key in name
   else loadMachine(null); 
   rollo = new Roll();
   fileMan = new FileMan();
