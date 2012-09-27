@@ -1,6 +1,4 @@
 <?php
-require_once('Category.php');
-require_once('Option.php');
 require_once('DBConnection.php');
 $debug = false;
 
@@ -12,7 +10,25 @@ if(isset($_POST['m']))
   $m = json_decode($_POST['m']);
   if(isset($_GET['k']))
   {
-
+    $mid = substr($_GET['k'], 0, strpos($_GET['k'],'k'));
+    $key = substr($_GET['k'], strpos($_GET['k'],'k')+1);
+    $exists = $con->queryObj("SELECT id FROM machines WHERE id = ".$mid." AND key = '".$key."' AND password = '".md5($_POST['p'])."' LIMIT 1;");
+    if(!$exists) die(0);
+    //Already exists- delete all data (updating use_counts accordingly) for repopulation as new
+    $cats = $con->queryArray("SELECT * FROM machine_categories WHERE m_id = ".$mid.";");
+    for($i = 0; $i < count($cats); $i++)
+    {
+      $con->query("UPDATE categories SET use_count = use_count-1 WHERE id = ".$cats[$i]->c_id.";");
+      if($cats[$i]->i_id != 0) $con->query("UPDATE icons SET use_count = use_count-1 WHERE id = ".$cats[$i]->i_id.";");
+      $con->query("DELETE FROM machine_categories WHERE id = ".$cats[$i]->id.";");
+    }
+    $opts = $con->queryArray("SELECT * FROM machine_category_options WHERE m_id = ".$mid.";");
+    for($i = 0; $i < count($opts); $i++)
+    {
+      $con->query("UPDATE options SET use_count = use_count-1 WHERE id = ".$opts[$i]->o_id.";");
+      if($opts[$i]->i_id != 0) $con->query("UPDATE icons SET use_count = use_count-1 WHERE id = ".$opts[$i]->i_id.";");
+      $con->query("DELETE FROM machine_category_options WHERE id = ".$opts[$i]->id.";");
+    }
   }
   else
   {
@@ -48,7 +64,7 @@ if(isset($_POST['m']))
 
     for($j = 0; $j < count($m->categories[$i]->options); $j++)
     {
-      $o = $con->queryObj("SELECT id FROM options WHERE c_id = ".$cid." AND name = '".strtolower($m->categories[$k]->options[$j]->name)."' LIMIT 1;");
+      $o = $con->queryObj("SELECT id FROM options WHERE c_id = ".$cid." AND name = '".strtolower($m->categories[$i]->options[$j]->name)."' LIMIT 1;");
       if(!$o)
         $oid = $con->query("INSERT INTO options (c_id, name, use_count) VALUES (".$cid.", '".strtolower($m->categories[$i]->options[$j]->name)."', 1);");
       else
@@ -69,6 +85,9 @@ if(isset($_POST['m']))
       $mcoid = $con->query("INSERT INTO machine_category_options (m_id, c_id, o_id, i_id, sort) VALUES (".$mid.", ".$cid.", ".$oid.", ".$oiid.", ".$j.");");
     }
   }
+
+  echo $_GET['k'];
+  return;
 }
 
 // Fetch

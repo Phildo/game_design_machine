@@ -14,6 +14,7 @@ function getURLParam ( sname )
 
 function callService(serviceName, callback, GETparams, POSTparams)
 {
+  alert(serviceName+" "+callback+" "+GETparams);
   var url;
   if(GETparams)
     url = 'services/'+serviceName+'.php'+GETparams;
@@ -58,7 +59,10 @@ function defaultOfflineMachine()
 }
 function showSaveResult(data)
 {
-  alert('woah!\n'+data);
+  machine.m_key = data;
+  createCookie('key',data);
+  populateKeyBox(null);
+  displayMessage(fileMan.saveSuccessBoxHtml);
 }
 
 function tick()
@@ -613,6 +617,9 @@ function FileMan()
   this.oldPassInputHtml = null;
   this.confirmNewSaveButtonHtml = null;
   this.confirmOldSaveButtonHtml = null;
+
+  this.saveSuccessBoxHtml = null;
+  this.keyBoxHtml = null;
   
   this.constructHTML = function()
   {
@@ -730,6 +737,39 @@ function FileMan()
     tmpElA.appendChild(this.confirmOldSaveButtonHtml);
     this.oldSaveQueryBoxHtml.appendChild(tmpElA);
 
+    this.saveSuccessBoxHtml = document.createElement('div');
+    //Construct Title
+    tmpElA = document.createElement('div');
+    tmpElA.innerHTML = "save success";
+    tmpElA.style.paddingBottom = '10px';
+    tmpElA.style.fontSize = 'x-large';
+    tmpElA.style.margin = '0px auto';
+    this.saveSuccessBoxHtml.appendChild(tmpElA);
+    //Construct Input
+    tmpElA = document.createElement('div');
+    tmpElA.innerHTML = "your machine's key is: ";
+    tmpElA.style.width = '290px';
+    tmpElA.style.margin = '0px auto';
+    this.keyBoxHtml = document.createElement('input');
+    this.keyBoxHtml.setAttribute('id','keyBox');
+    this.keyBoxHtml.setAttribute('type','text');
+    this.keyBoxHtml.setAttribute('readonly','readonly');
+    this.keyBoxHtml.addEventListener('click', function(e) { if(e != null) e.stopPropagation(); });
+    this.keyBoxHtml.addEventListener('blur', function(e) { populateKeyBox(e); });
+    this.keyBoxHtml.addEventListener('keypress', function(e) { setTimeout(populateKeyBox(e),5000); });//Let the key be entered, then overwrite it
+    tmpElA.appendChild(this.keyBoxHtml);
+    this.saveSuccessBoxHtml.appendChild(tmpElA);
+    //ConstructButtons
+    tmpElA = document.createElement('div');
+    tmpElA.style.paddingTop = '10px';
+    tmpElA.style.margin = '0px auto';
+    this.tmpElB = document.createElement('div'); 
+    this.tmpElB.setAttribute('class','button');
+    this.tmpElB.style.margin = '0px auto';
+    this.tmpElB.innerHTML = 'back';
+    this.tmpElB.style.textAlign = 'center';
+    tmpElA.appendChild(this.tmpElB);
+    this.saveSuccessBoxHtml.appendChild(tmpElA);
   }
   this.constructHTML();
 }
@@ -757,7 +797,10 @@ function loadDefaults(e)
 function loadMachine(m_key)
 {
   if(m_key)
+  {
+    createCookie('key',m_key);
     callService('machine',populateMachineFromJSON,'?k='+m_key);
+  }
   else
     callService('machine',populateMachineFromJSON);
 }
@@ -843,6 +886,10 @@ function confirmSaveNew(e)
 {
   saveMachine(fileMan.newPassInputHtml.value,machine.json(),null);
 }
+function populateKeyBox(e)
+{
+  fileMan.keyBoxHtml.value = machine.m_key;
+}
 
 function mousemoved(e)
 {
@@ -878,8 +925,9 @@ function windowresized(e)
 
 function init() 
 { 
-  if(getURLParam('k') == '') loadMachine(null); 
-  else loadMachine(getURLParam('k'));
+  if(getURLParam('k') != '') loadMachine(getURLParam('k'));
+  else if (readCookie('key')) window.location = "./index.html?k="+readCookie('key'); //Actually reload the page, so the browser will cache the site with key in name
+  else loadMachine(null); 
   rollo = new Roll();
   fileMan = new FileMan();
   window.onresize = function(e) { windowresized() };
