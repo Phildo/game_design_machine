@@ -33,7 +33,7 @@ if(isset($_POST['m']))
   else
   {
     $mid = $con->query("INSERT INTO machines (pass, created) VALUES ('".md5($_POST['p'])."', NOW());",$debug);
-    $key = md5($mid."k");
+    $key = substr(md5($mid."k"),-4);
     $con->query("UPDATE machines SET m_key = '".$key."' WHERE id = ".$mid.";");
     $_GET['k'] = $mid."k".$key;
   }

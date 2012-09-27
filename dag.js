@@ -50,6 +50,7 @@ function populateMachineFromJSON(data)
 {
   if(!data) data = defaultOfflineMachine();
   data = JSON.parse(data);
+  createCookie('key',data.m_key);
   machine = new Machine(data.m_key, data.categories);
 }
 function defaultOfflineMachine()
@@ -797,10 +798,7 @@ function loadDefaults(e)
 function loadMachine(m_key)
 {
   if(m_key)
-  {
-    createCookie('key',m_key);
     callService('machine',populateMachineFromJSON,'?k='+m_key);
-  }
   else
     callService('machine',populateMachineFromJSON);
 }
@@ -926,8 +924,8 @@ function windowresized(e)
 function init() 
 { 
   if(getURLParam('k') != '') loadMachine(getURLParam('k'));
-  else if (readCookie('key')) loadMachine('key'); //Actually reload the page, so the browser will cache the site with key in name
-  else loadMachine(null); 
+  else if (readCookie('key') && readCookie('key') != '') loadMachine('key'); //Actually reload the page, so the browser will cache the site with key in name
+  else loadDefaults(null); 
   rollo = new Roll();
   fileMan = new FileMan();
   window.onresize = function(e) { windowresized() };
