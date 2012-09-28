@@ -14,7 +14,6 @@ function getURLParam ( sname )
 
 function callService(serviceName, callback, GETparams, POSTparams)
 {
-  //alert(serviceName+" "+callback+" "+GETparams);
   var url;
   if(GETparams)
     url = 'services/'+serviceName+'.php'+GETparams;
@@ -60,10 +59,15 @@ function defaultOfflineMachine()
 }
 function showSaveResult(data)
 {
-  machine.m_key = data;
-  createCookie('key',data);
-  populateKeyBox(null);
-  displayMessage(fileMan.saveSuccessBoxHtml);
+  if(data)
+  {
+    machine.m_key = data;
+    createCookie('key',data);
+    fileMan.keyBoxHtml.value = machine.m_key;
+    displayMessage(fileMan.saveSuccessBoxHtml);
+  }
+  //else
+    //displayMessage(fileMan.saveFailBoxHtml);
 }
 
 function tick()
@@ -614,6 +618,7 @@ function FileMan()
 
   this.newSaveQueryBoxHtml = null;
   this.oldSaveQueryBoxHtml = null;
+  this.keyDisplayHtml = null;
   this.newPassInputHtml = null;
   this.oldPassInputHtml = null;
   this.confirmNewSaveButtonHtml = null;
@@ -709,6 +714,11 @@ function FileMan()
     tmpElA.style.fontSize = 'x-large';
     tmpElA.style.margin = '0px auto';
     this.oldSaveQueryBoxHtml.appendChild(tmpElA);
+    this.keyDisplayHtml = document.createElement('div');
+    this.keyDisplayHtml.innerHTML = "key: ";
+    this.keyDisplayHtml.style.width = '290px';
+    this.keyDisplayHtml.style.margin = '0px auto';
+    this.oldSaveQueryBoxHtml.appendChild(this.keyDisplayHtml);
     //Construct Input
     tmpElA = document.createElement('div');
     tmpElA.innerHTML = "password: ";
@@ -748,16 +758,15 @@ function FileMan()
     this.saveSuccessBoxHtml.appendChild(tmpElA);
     //Construct Input
     tmpElA = document.createElement('div');
-    tmpElA.innerHTML = "your machine's key is: ";
+    tmpElA.innerHTML = "your key is: ";
     tmpElA.style.width = '290px';
     tmpElA.style.margin = '0px auto';
     this.keyBoxHtml = document.createElement('input');
     this.keyBoxHtml.setAttribute('id','keyBox');
     this.keyBoxHtml.setAttribute('type','text');
     this.keyBoxHtml.setAttribute('readonly','readonly');
+    this.keyBoxHtml.style.width = '50px';
     this.keyBoxHtml.addEventListener('click', function(e) { if(e != null) e.stopPropagation(); });
-    this.keyBoxHtml.addEventListener('blur', function(e) { populateKeyBox(e); });
-    this.keyBoxHtml.addEventListener('keypress', function(e) { setTimeout(populateKeyBox(e),5000); });//Let the key be entered, then overwrite it
     tmpElA.appendChild(this.keyBoxHtml);
     this.saveSuccessBoxHtml.appendChild(tmpElA);
     //ConstructButtons
@@ -805,9 +814,13 @@ function loadMachine(m_key)
 function saveMachine(password,json,m_key)
 {
   if(m_key)
-    callService('machine',showSaveResult,'?k='+m_key,'m='+json+'&p='+password);//CryptoJS.MD5(password));
+    callService('machine',showSaveResult,'?k='+m_key,'m='+json+'&p='+CryptoJS.MD5(password));
   else
-    callService('machine',showSaveResult,'','m='+json+'&p='+password);//CryptoJS.MD5(password));
+    callService('machine',showSaveResult,'','m='+json+'&p='+CryptoJS.MD5(password));
+}
+function redo(e)
+{
+  loadMachine(machine.m_key);
 }
 function wipe(e)
 {
@@ -815,6 +828,7 @@ function wipe(e)
 }
 function load(e)
 {
+  fileMan.keyInputHtml.value = '';
   displayMessage(fileMan.loadQueryBoxHtml);
   fileMan.keyInputHtml.select();
 }
@@ -822,6 +836,7 @@ function save(e)
 {
   if(machine.m_key != '')
   {
+    fileMan.keyDisplayHtml.innerHTML = 'key: '+machine.m_key;
     displayMessage(fileMan.oldSaveQueryBoxHtml);
     fileMan.oldPassInputHtml.select();
   }
@@ -884,10 +899,6 @@ function confirmSaveNew(e)
 {
   saveMachine(fileMan.newPassInputHtml.value,machine.json(),null);
 }
-function populateKeyBox(e)
-{
-  fileMan.keyBoxHtml.value = machine.m_key;
-}
 
 function mousemoved(e)
 {
@@ -924,13 +935,13 @@ function windowresized(e)
 function init() 
 { 
   if(getURLParam('k') != '') loadMachine(getURLParam('k'));
-  else if (readCookie('key') && readCookie('key') != '') loadMachine('key'); //Actually reload the page, so the browser will cache the site with key in name
+  else if (readCookie('key') && readCookie('key') != '' && readCookie('key') != '1k') loadMachine(readCookie('key')); //Actually reload the page, so the browser will cache the site with key in name
   else loadDefaults(null); 
   rollo = new Roll();
   fileMan = new FileMan();
   window.onresize = function(e) { windowresized() };
   document.addEventListener('mousemove', function(e) { mousemoved(e); });
-  document.getElementById('redobtn').addEventListener('click', function(e) { loadDefaults(e); });
+  document.getElementById('redobtn').addEventListener('click', function(e) { redo(e); });
   document.getElementById('wipebtn').addEventListener('click', function(e) { wipe(e); });
   document.getElementById('loadbtn').addEventListener('click', function(e) { load(e); });
   document.getElementById('savebtn').addEventListener('click', function(e) { save(e); });

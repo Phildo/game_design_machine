@@ -5,14 +5,16 @@ $debug = false;
 $con = new DBConnection();
 
 // Save Machine
-if(isset($_POST['m']))
+if(!isset($_POST['m']))
 {
   $m = json_decode($_POST['m']);
   if(isset($_GET['k']))
   {
     $mid = substr($_GET['k'], 0, strpos($_GET['k'],'k'));
     $key = substr($_GET['k'], strpos($_GET['k'],'k')+1);
-    $exists = $con->queryObj("SELECT id FROM machines WHERE id = ".$mid." AND m_key = '".$key."' AND pass = '".md5($_POST['p'])."' LIMIT 1;");
+    echo "SELECT id FROM machines WHERE id = ".$mid." AND m_key = '".$key."' AND password = '".md5($_POST['p'])."' LIMIT 1;";
+    return;
+    $exists = $con->queryObj("SELECT id FROM machines WHERE id = ".$mid." AND m_key = '".$key."' AND password = '".md5($_POST['p'])."' LIMIT 1;");
     if(!$exists) die(0);
     //Already exists- delete all data (updating use_counts accordingly) for repopulation as new
     $cats = $con->queryArray("SELECT * FROM machine_categories WHERE m_id = ".$mid.";");
@@ -51,14 +53,12 @@ if(isset($_POST['m']))
       $con->query("UPDATE categories SET use_count = use_count+1 WHERE id = ".$cid.";");
     }
 
-    $ci = $con->queryObj("SELECT id FROM icons WHERE link_type = 'CATEGORY' AND link_id = ".$cid." AND icon = '".strtolower($m->categories[$i]->icon)."' LIMIT 1;");
+    $ci = $con->queryObj("SELECT id FROM icons WHERE link_type = 'CATEGORY' AND link_id = '".$cid."' AND icon = '".strtolower($m->categories[$i]->icon)."' LIMIT 1;");
     if($ci)
     {
       $ciid = $ci->id;
       $con->query("UPDATE icons SET use_count = use_count+1 WHERE id = ".$ciid.";");
     }
-    else if(strtolower($m->categories[$i]->icon) != "default_cat.png")
-      $ciid = $con->query("INSERT INTO icons (link_type, link_id, icon, use_count) VALUES ('CATEGORY', ".$cid.", '".strtolower($m->categories[$i]->icon)."', 1);");
     else
       $ciid = 0;
     
@@ -80,10 +80,6 @@ if(isset($_POST['m']))
       {
         $oiid = $oi->id;
         $con->query("UPDATE icons SET use_count = use_count+1 WHERE id = ".$oiid.";");
-      }
-      else if(strtolower($m->categories[$i]->icon) != "default_cat.png")
-      {
-        $oiid = $con->query("INSERT INTO icons (link_type, link_id, icon, use_count) VALUES ('OPTION', ".$oid.", '".strtolower($m->categories[$i]->options[$j]->icon)."', 1);");
       }
       else
         $oiid = 0;
