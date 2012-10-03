@@ -643,7 +643,7 @@ function FileMan()
     this.loadQueryBoxHtml.appendChild(tmpElA);
     //Construct Input
     tmpElA = document.createElement('div');
-    tmpElA.innerHTML = "key: ";
+    tmpElA.innerHTML = "machine: ";
     tmpElA.style.width = '210px';
     tmpElA.style.margin = '0px auto';
     this.keyInputHtml = document.createElement('input');
