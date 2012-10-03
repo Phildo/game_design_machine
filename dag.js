@@ -54,7 +54,7 @@ function populateMachineFromJSON(data)
 }
 function defaultOfflineMachine()
 {
-  var d = '{"id":"1","m_key":"","categories":[{"id":"1","name":"who","icon":"who_cat.png","options":[{"id":"1","name":"zombie","icon":"who_zombie_opt.png"},{"id":"2","name":"vampire","icon":"who_vampire_opt.png"},{"id":"3","name":"knight","icon":"who_knight_opt.png"}]},{"id":"2","name":"where","icon":"where_cat.png","options":[{"id":"4","name":"castle","icon":"where_castle_opt.png"},{"id":"5","name":"world","icon":"where_world_opt.png"},{"id":"6","name":"space","icon":"where_space_opt.png"}]},{"id":"3","name":"what","icon":"what_cat.png","options":[{"id":"7","name":"rescue","icon":"what_rescue_opt.png"},{"id":"8","name":"domination","icon":"what_domination_opt.png"},{"id":"9","name":"war","icon":"what_war_opt.png"}]}]}';
+  var d = '{"m_key":"","categories":[{"name":"who","icon":"default_category.png","options":[{"name":"zombie","icon":"default_option.png"},{"name":"vampire","icon":"default_option.png"},{"name":"knight","icon":"default_option.png"}]},{"name":"where","icon":"default_category.png","options":[{"name":"castle","icon":"default_option.png"},{"name":"world","icon":"default_option.png"},{"name":"space","icon":"default_option.png"}]},{"name":"what","icon":"default_category.png","options":[{"name":"rescue","icon":"default_option.png"},{"name":"domination","icon":"default_option.png"},{"name":"war","icon":"default_option.png"}]}]}';
   return d;
 }
 function showSaveResult(data)
