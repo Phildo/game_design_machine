@@ -66,8 +66,8 @@ function showSaveResult(data)
     fileMan.keyBoxHtml.value = machine.m_key;
     displayMessage(fileMan.saveSuccessBoxHtml);
   }
-  //else
-    //displayMessage(fileMan.saveFailBoxHtml);
+  else
+    displayMessage(fileMan.saveFailedBoxHtml);
 }
 
 function tick()
@@ -625,6 +625,7 @@ function FileMan()
   this.confirmOldSaveButtonHtml = null;
 
   this.saveSuccessBoxHtml = null;
+  this.saveFailBoxHtml = null;
   this.keyBoxHtml = null;
   
   this.constructHTML = function()
@@ -731,9 +732,18 @@ function FileMan()
     this.oldPassInputHtml.addEventListener('keypress', function(e) { if(e.keyIdentifier == "Enter") { confirmSaveOld(e); hideMessage(e); } });
     tmpElA.appendChild(this.oldPassInputHtml);
     this.oldSaveQueryBoxHtml.appendChild(tmpElA);
-    //ConstructButtons
+    //Construct NewSave Option
     tmpElA = document.createElement('div');
     tmpElA.style.paddingTop = '10px';
+    tmpElA.addEventListener('click', function(e) { machine.m_key = ''; if(e != null) e.stopPropagation(); save(e); });
+    tmpElA.innerHTML = '<a href="javascript:\';\'">save to new key?</a>';
+    tmpElA.style.textAlign = 'center';
+    tmpElA.style.fontSize = 'x-small';
+    tmpElA.style.height = '30px';
+    this.oldSaveQueryBoxHtml.appendChild(tmpElA);
+    //ConstructButtons
+    tmpElA = document.createElement('div');
+    //tmpElA.style.paddingTop = '5px';
     tmpElA.style.margin = '0px auto';
     this.confirmOldSaveButtonHtml = document.createElement('div'); //confirmSaveButton is just being used as placeholder here
     this.confirmOldSaveButtonHtml.setAttribute('class','button');
@@ -780,6 +790,32 @@ function FileMan()
     this.tmpElB.style.textAlign = 'center';
     tmpElA.appendChild(this.tmpElB);
     this.saveSuccessBoxHtml.appendChild(tmpElA);
+
+    this.saveFailedBoxHtml = document.createElement('div');
+    //Construct Title
+    tmpElA = document.createElement('div');
+    tmpElA.innerHTML = "save failed";
+    tmpElA.style.paddingBottom = '10px';
+    tmpElA.style.fontSize = 'x-large';
+    tmpElA.style.margin = '0px auto';
+    this.saveFailedBoxHtml.appendChild(tmpElA);
+    //Construct Input
+    tmpElA = document.createElement('div');
+    tmpElA.innerHTML = "password incorrect";
+    tmpElA.style.width = '290px';
+    tmpElA.style.margin = '0px auto';
+    this.saveFailedBoxHtml.appendChild(tmpElA);
+    //ConstructButtons
+    tmpElA = document.createElement('div');
+    tmpElA.style.paddingTop = '10px';
+    tmpElA.style.margin = '0px auto';
+    this.tmpElB = document.createElement('div'); 
+    this.tmpElB.setAttribute('class','button');
+    this.tmpElB.style.margin = '0px auto';
+    this.tmpElB.innerHTML = ':(';
+    this.tmpElB.style.textAlign = 'center';
+    tmpElA.appendChild(this.tmpElB);
+    this.saveFailedBoxHtml.appendChild(tmpElA);
   }
   this.constructHTML();
 }
@@ -828,7 +864,7 @@ function wipe(e)
 }
 function load(e)
 {
-  fileMan.keyInputHtml.value = '';
+  if(machine.m_key != '') fileMan.keyInputHtml.value = machine.m_key;
   displayMessage(fileMan.loadQueryBoxHtml);
   fileMan.keyInputHtml.select();
 }
