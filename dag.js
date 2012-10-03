@@ -716,7 +716,7 @@ function FileMan()
     tmpElA.style.margin = '0px auto';
     this.oldSaveQueryBoxHtml.appendChild(tmpElA);
     this.keyDisplayHtml = document.createElement('div');
-    this.keyDisplayHtml.innerHTML = "key: ";
+    this.keyDisplayHtml.innerHTML = "machine: ";
     this.keyDisplayHtml.style.width = '290px';
     this.keyDisplayHtml.style.margin = '0px auto';
     this.oldSaveQueryBoxHtml.appendChild(this.keyDisplayHtml);
@@ -736,7 +736,7 @@ function FileMan()
     tmpElA = document.createElement('div');
     tmpElA.style.paddingTop = '10px';
     tmpElA.addEventListener('click', function(e) { machine.m_key = ''; if(e != null) e.stopPropagation(); save(e); });
-    tmpElA.innerHTML = '<a href="javascript:\';\'">save to new key?</a>';
+    tmpElA.innerHTML = '<a href="javascript:\';\'">save as new machine?</a>';
     tmpElA.style.textAlign = 'center';
     tmpElA.style.fontSize = 'x-small';
     tmpElA.style.height = '30px';
@@ -768,7 +768,7 @@ function FileMan()
     this.saveSuccessBoxHtml.appendChild(tmpElA);
     //Construct Input
     tmpElA = document.createElement('div');
-    tmpElA.innerHTML = "your key is: ";
+    tmpElA.innerHTML = "your machine: ";
     tmpElA.style.width = '290px';
     tmpElA.style.margin = '0px auto';
     this.keyBoxHtml = document.createElement('input');
@@ -872,7 +872,7 @@ function save(e)
 {
   if(machine.m_key != '')
   {
-    fileMan.keyDisplayHtml.innerHTML = 'key: '+machine.m_key;
+    fileMan.keyDisplayHtml.innerHTML = 'machine: '+machine.m_key;
     displayMessage(fileMan.oldSaveQueryBoxHtml);
     fileMan.oldPassInputHtml.select();
   }
