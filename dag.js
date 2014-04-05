@@ -465,7 +465,7 @@ function Roll()
   this.plaintextcell = document.createElement('td');
   this.plaintextcell.setAttribute('colspan','2');
   this.plaintextcell.addEventListener('click', function(e) { viewPlainText(e); });
-  this.plaintextcell.innerHTML = '<a href="javascript:\';\'">plain text?</a>';
+  this.plaintextcell.innerHTML = '<a>plain text?</a>';
   this.plaintextcell.style.textAlign = 'center';
   this.plaintextcell.style.fontSize = 'x-small';
   this.plaintextcell.style.height = '30px';
